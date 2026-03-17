@@ -2,7 +2,7 @@ import geopandas as gpd
 import os
 
 #variables
-from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, ZONE_PONTE_SHP, ZONE_PONTE_FIELD, CRS, DEPTH_THRESHOLD, START_AT_FIRST_OCCURENCE, FOCUS_ON_ZONE
+from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, CRS, DEPTH_THRESHOLD
 from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_SURF_COLNAME
 from variables_from_config import OUTPUT_FOLDER_TIME, SHP_INPUT_FILE, DATA_DIR_HYDRO, TYPICAL_FLOW_FILENAME
 
@@ -77,7 +77,7 @@ output_metrics = os.path.join(OUTPUT_FOLDER_TIME, "Metric_files")
 os.makedirs(output_metrics, exist_ok=True)
 output_metrics_values = os.path.join(output_metrics, "metrics.csv")
 
-process_mesh_data(discharge_with_match, output_habitat_attribution, output_metrics_values, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, START_AT_FIRST_OCCURENCE)
+process_mesh_data(discharge_with_match, output_habitat_attribution, output_metrics_values, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS)
 
 # saving the metrics to a shapefile 
 output_mesh_metrics_values = os.path.join(output_metrics, "mesh_with_results.shp")

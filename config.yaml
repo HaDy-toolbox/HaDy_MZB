@@ -13,12 +13,9 @@ shp_surf_colname: "area"
 
 
 # --- Temporal extent of the flow time-series ---
-# 
+# Name of the file containted in the "Flow_time_series" folder containing the flow time-series to analyze (the expected format is a csv file with at least the column "Discharge")
 typical_filename: "Ticino_weekly.csv"
 time_step_min: 10.0   # float (minutes)
-
-
-
 
 # --- Habitat type to analyze ---
 # The metrics are only calculated for the meshes that experience the habitat type in focus at least once during the habitat time series
@@ -30,7 +27,7 @@ target_habitat:
 
 # --- Metrics parameters ---
 suitable_hab_shifts: [1, 2, 3, 4, 5] # expected value : list of integers from the habitat classification definition (e.g., for the gravel bank study, if the target habitat is 2, you can consider that a shift to habitat type 3 is a shift to a suitable habitat, while a shift to habitat type 1 is not a shift to a suitable habitat)
-# Following is metrics selection : enter "true" if you want to compute the metrie, "false" otherwise
+# Following is metrics selection : enter "true" if you want to compute the metric, "false" otherwise
 metrics_to_compute:
   # Shifts
   shift_all_daily: true # Daily shifts between all types of habitats
@@ -69,6 +66,7 @@ number_of_habitats: 7 # Integer : the number of habitats that you have based on 
 
 
 # --- Drift thresholds with drift_ramp_threshold ---
+# up_ramp: false # expected value : boolean (true or false) - if true, the drift thresholds will be applied with a ramping effect (see user manual)
 # Example of drift thresholds based on current velocity thresholds (see user guide) in m/s
 # ATTENTION: NOT YET OPERATIONAL !!!
 drift_thresholds_with_ramp:

@@ -5,7 +5,7 @@ from itertools import groupby
 
 from variables_from_config import TIME_STEP_MIN
 from variables_from_config import TIMESTEPS_PER_DAY
-from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_SURF_COLNAME 
+from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME 
 from variables_from_config import METRICS_TO_COMPUTE
 from variables_from_config import SUITABLE_HAB_SHIFTS
 
@@ -296,7 +296,7 @@ def compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresh
 
     return results
 
-def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccation_thresholds, target_habitat, start_at_first_occurrence):
+def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccation_thresholds, target_habitat):
     flow_data = pd.read_csv(flow_csv)
     mesh_data = pd.read_csv(mesh_csv)
     discharge_values = flow_data["Corresponding_known_discharge"].values #this gives an array (line) with all the sequence of discharge values. Length = time of timesteps, order = temporal sequence
@@ -314,7 +314,7 @@ def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccat
     # computing the metrics for each mesh cell (a row)
     results_process_mesh_data = [
         # compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat)
-        compute_mesh_metrics_for_row_boolean(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat, start_at_first_occurrence)
+        compute_mesh_metrics_for_row_boolean(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat)
         for _, row in mesh_data.iterrows()
     ]
 
@@ -331,8 +331,7 @@ def compute_mesh_metrics_for_row_boolean(
     dep_cols,
     drift_thresholds,
     desiccation_thresholds,
-    target_habitat,
-    start_at_first_occurrence
+    target_habitat
 ):
     """
     Compute metrics for one mesh element.
@@ -414,26 +413,6 @@ def compute_mesh_metrics_for_row_boolean(
             )
 
             metrics = metrics_full.copy()
-
-            # --------------------------------------------------
-            # 2️⃣ If requested → recompute ONLY desiccation
-            #     from first occurrence onward
-            # --------------------------------------------------
-            if start_at_first_occurrence:
-
-                habitat_seq_sliced = habitat_seq[first_idx:]
-
-                # recompute dry max on sliced sequence
-                max_dry = max_dry_duration(habitat_seq_sliced)
-
-                if METRICS_TO_COMPUTE.get("dry_max", False):
-                    metrics["DryMax"] = max_dry
-
-                if METRICS_TO_COMPUTE.get("desiccation_risk", False):
-                    metrics["DesicRisk"] = get_desiccation_risk(
-                        max_dry,
-                        desiccation_thresholds
-                    )
 
             results.update({prefix + k: v for k, v in metrics.items()})
 
