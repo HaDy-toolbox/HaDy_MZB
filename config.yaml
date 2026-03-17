@@ -1,0 +1,112 @@
+# =============================================================== CONFIGURATION FILE FOR THE USER OT ENTER THE PARAMETERS OF THE SIMULATION ===============================================================
+
+# --- Spatial extent of the zone to study ---
+# This indicates in which input folder the code will seach for the input shapefile 
+# If you only have one spatial scale to study, store your input shapefile into the "Full_zone" input folder, and enter "full" here 
+# If you have several zones to study, you can enter the relevant input shapefiles into the corresponding input folders and indicate here which one you want to study (you can only study one zone at a time)
+# For example, if you indicate "small", the code will search for the input shapefile in the forlder "Small_zone"
+zone_type: "full" # expected value : "small" or "bigger" or "full" and nothing else 
+# Associated input filenames : enter the names of the input shapefiles you want to study. small_zone_shp is located in the folder "Small_zone", bigger_zone_shp in the folder "Bigger_zone", and the full_zone_shp in the "Full_zone" respectively
+# small_zone_shp: "joined_layer_small_zone.shp"
+# bigger_zone_shp: "Joined_layer_bigger_zone.shp"
+full_zone_shp: "hydraulic_mesh.shp"
+# Shapefile column configuration: the prefix of the columns containing the relevant information (e.g., for discharge 12.5 m3/s: "ho12.5" for the columns water depth and "vit12.5" for the water velocity)
+shp_depth_prefix: "d_"
+shp_vel_prefix: "v_"
+shp_x_colname: "x"
+shp_y_colname: "y"
+shp_id_colname: "id"
+shp_surf_colname: "area"
+
+
+# --- Temporal extent of the flow time-series ---
+# This indicates what is the temportal extent to study (you can only study one temporal extent at a time)
+# This tells the code how to make links between the input discharge csv, the relevant time scale, and how to call the output files 
+# If you only have one temporal scale to study, you can enter the one you want, make sure to adapt the following variables accordingly (name of the discharge file, and associated time scale)
+# If you have several temporal scales to study, enter here the one you want, and the code will pick the right discharge file, and create the associated output folder
+time_series_length: "middle" # expected value : "short" or "middle" or "long" and nothing else
+# Associated hydro data : name of the discharge csv input files, and their associated time step. 
+# ATTENTION: the time step needs to match the one of the .csv file. If you want to study at a different time scale, you need to change the input csv file accordingly. This means the code cannot analyze at a hourly time step a file given at a 10 minute time step. Metrics will be wrong.
+typical_short_filename: "Ticino_daily.csv"
+time_step_min_short: 10.0   # float (minutes)
+typical_middle_filename: "Ticino_weekly.csv"
+time_step_min_middle: 10.0   # float (minutes)
+typical_long_filename: "April_September_2019_delta_one_hour.csv"
+time_step_min_long: 60.0   # float (minutes)
+
+
+
+# --- Habitat type to analyze ---
+# The metrics are only calculated for the meshes that experience the habitat type in focus at least once during the habitat time series
+# The expected format is an integer, from the habitat classification definition (see part habitat classification in the user manual) 
+# Example for the gravel bank study: -1: not in the gravel banks; 0: dry; 1: depth or velocity ranges not ok; 2: available for egg deposition
+target_habitat:
+  - 3 # expected value : integer from the habitat classification definition
+
+
+# --- Metrics parameters ---
+suitable_hab_shifts: [1, 2, 3, 4, 5] # expected value : list of integers from the habitat classification definition (e.g., for the gravel bank study, if the target habitat is 2, you can consider that a shift to habitat type 3 is a shift to a suitable habitat, while a shift to habitat type 1 is not a shift to a suitable habitat)
+# Following is metrics selection : enter "true" if you want to compute the metrie, "false" otherwise
+metrics_to_compute:
+  # Shifts
+  shift_all_daily: true # Daily shifts between all types of habitats
+  shift_targ_daily: true # Daily shifts to the target habitat 
+  shift_dry_daily: true # Daily shifts to dry conditions
+
+  # Desiccation
+  dry_max: true # Maximum consecutive time steps of dry conditions (in number of time steps)
+  desiccation_risk: true # Associated desiccation risk value (see user manual)
+
+  # Drift
+  drift_percentile: true # Drift pencentile risk (see user manual)
+  drift_max: true # Associated maximum drift value (see user manual)
+  drift_durations: true # Number of time steps spent is each drift category (in number of times teps)
+
+
+# --- Raster parameter ---
+# crs: "EPSG:2154"   # The CSR of the GIS project 
+crs: "EPSG:2056"  
+
+# --- Thresholds parameter ---
+# This determines which meshes will be considered in the analysis (each mesh that is wet for the maximum discharge of the flow time-series will be in scope)
+# "Wet" meaning depth > depth_threshold
+depth_threshold: 0.01   # expected value : float (m) 
+
+
+# --- Habitat classification thresholds  ---
+# Example of habitat classification based on current velocity thresholds (see user guide)
+habitat_velocity_thresholds:
+  class_1: 0.05 # 1 if v < 0.05 m/s
+  class_2: 0.25 # 2 if 0.05 ≤ v < 0.25 m/s
+  class_3: 0.75 # 3 if 0.25 ≤ v < 0.75 m/s
+  class_4: 1.5 # 4 if 0.75 ≤ v < 1.5 m/s
+  class_5: 2.5 # 5 if 1.5 ≤ v < 2.5 m/s
+number_of_habitats: 7 # Integer : the number of habitats that you have based on this habitat classification (e.g., 7 for the previous classification: from 0 to 6)
+
+
+# --- Drift thresholds with drift_ramp_threshold ---
+# Example of drift thresholds based on current velocity thresholds (see user guide) in m/s
+# ATTENTION: NOT YET OPERATIONAL !!!
+drift_thresholds_with_ramp:
+  drift_1: 0.4
+  drift_2: 0.7
+  drift_3: 1.0
+  drift_ramp_threshold_2: 1.0   # cm/min
+
+# --- Drift thresholds without drift_ramp_threshold ---
+# Example of drift thresholds based on current velocity thresholds (see user guide) in m/s
+drift_thresholds:
+  drift_1: 1.2
+  drift_2: 2.1
+  drift_3: 3.0
+
+# --- Desiccation thresholds (in hours) ---
+# Example of desiccation thresholds based on consecutive durations spent outside of water (in hours)
+desiccation_thresholds:
+  desicc_1: 1
+  desicc_2: 5
+  desicc_3: 9
+
+
+
+
