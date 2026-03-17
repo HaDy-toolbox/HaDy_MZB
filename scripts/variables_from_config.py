@@ -46,32 +46,16 @@ INPUT_FOLDER = PROJECT_ROOT / "data" / "input"
 OUTPUT_FOLDER = PROJECT_ROOT / "data" / "output"
 
 # --- Zone selection ---
-if _config["zone_type"] == "small":
-    AREA_FOLDER = INPUT_FOLDER / "Small_zone"
-    SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["small_zone_shp"])
-elif _config["zone_type"] == "bigger":
-    AREA_FOLDER = INPUT_FOLDER / "Bigger_zone"
-    SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["bigger_zone_shp"])
-else:
-    AREA_FOLDER = INPUT_FOLDER / "full_zone"
-    SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["full_zone_shp"])
+AREA_FOLDER = INPUT_FOLDER / "Study_zone"
+SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["study_zone_shp"])
+
 
 # --- Time selection - output folders creation---
-if _config["time_series_length"] == "short":
-    OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Short")
-    os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
-    TIME_STEP_MIN = _config["time_step_min_short"]
-    TYPICAL_FLOW_FILENAME = _config["typical_short_filename"]
-elif _config["time_series_length"] == "middle":
-    OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Middle")
-    os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
-    TIME_STEP_MIN = _config["time_step_min_middle"]
-    TYPICAL_FLOW_FILENAME = _config["typical_middle_filename"]
-else:
-    OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Long")
-    os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
-    TIME_STEP_MIN = _config["time_step_min_long"]
-    TYPICAL_FLOW_FILENAME = _config["typical_long_filename"]
+OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Typical_week_analysis")
+os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
+TIME_STEP_MIN = _config["time_step_min"]
+TYPICAL_FLOW_FILENAME = _config["typical_filename"]
+
 
 # --- Time parameters to calculate daily metrics---
 TIMESTEPS_PER_DAY = int((24 * 60) / TIME_STEP_MIN)

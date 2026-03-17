@@ -7,7 +7,7 @@ import numpy as np
 import os
 import matplotlib.ticker as mtick
 
-from variables_from_config import FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS
+from variables_from_config import HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS
 
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
@@ -16,7 +16,7 @@ HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat t
 csv_path = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\QGIS_to_share\Metrics_small_zone\Summer_2019\metrics.csv"
 csv_path_static = r"C:\Users\lecrivau\source\repos\HaDy_MZB\data\output\Small_zone\Summer_2019_small_scale\Desiccation_files\mesh_habitat_egg_bancs_gravier.csv" 
 
-habitat_labels_dict_FOCUS_ZONE_FALSE = {
+habitat_labels_dict = {
     0: "Dry",
     1: "Stagnant",
     2: "Slow",
@@ -26,11 +26,6 @@ habitat_labels_dict_FOCUS_ZONE_FALSE = {
     6: "Violent"
 }
 
-habitat_labels_dict_FOCUS_ZONE_TRUE = {
-    0: "Dry",
-    1: "Too fast /\nToo deep ",
-    2: "Suitable"
-}
 
 habitat_colors_dict = {
     0: "#fde725",
@@ -110,10 +105,8 @@ def filter_meshes_with_target_habitat(df, habitat_target):
 def plot_most_prob_intensity(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -124,12 +117,8 @@ def plot_most_prob_intensity(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
         
     habitat_labels = {k: habitat_labels_dict[k] for k in habitat_range}
 
@@ -232,10 +221,8 @@ def plot_most_prob_intensity(
 def plot_most_prob_intensity_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -247,12 +234,8 @@ def plot_most_prob_intensity_target_hab(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
         
     habitat_labels = {k: habitat_labels_dict[k] for k in habitat_range}
 
@@ -357,10 +340,8 @@ def plot_most_prob_intensity_target_hab(
 def plot_most_prob_percentages(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -371,12 +352,8 @@ def plot_most_prob_percentages(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # Filter to selected habitat range
     df = df[df[habitat_col].isin(habitat_range)]
@@ -426,10 +403,8 @@ def plot_most_prob_percentages(
 def plot_most_prob_percentages_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -441,12 +416,8 @@ def plot_most_prob_percentages_target_hab(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Filtering
@@ -501,10 +472,8 @@ def plot_most_prob_percentages_target_hab(
 def plot_most_prob_horizontal(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -515,12 +484,8 @@ def plot_most_prob_horizontal(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     df = df[df[habitat_col].isin(habitat_range)]
 
@@ -578,10 +543,8 @@ def plot_most_prob_horizontal(
 def plot_most_prob_horizontal_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -593,12 +556,8 @@ def plot_most_prob_horizontal_target_hab(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Filtering
@@ -661,10 +620,8 @@ def plot_most_prob_horizontal_target_hab(
 # ==========================================================
 def plot_habitat_availability_per_discharge(
     csv_path,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -674,12 +631,8 @@ def plot_habitat_availability_per_discharge(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Extract habitat columns and discharges
@@ -782,10 +735,8 @@ def plot_habitat_availability_per_discharge(
 # ==========================================================
 def plot_habitat_availability_per_discharge_target_hab(
     csv_path,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     target_habitat,
     save_path
@@ -796,12 +747,8 @@ def plot_habitat_availability_per_discharge_target_hab(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Extract habitat columns
@@ -910,10 +857,8 @@ def plot_habitat_availability_per_discharge_target_hab(
 # ==========================================================
 def plot_habitat_availability_per_discharge_surface(
     csv_path,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -922,12 +867,8 @@ def plot_habitat_availability_per_discharge_surface(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Extract habitat columns
@@ -1039,10 +980,8 @@ def plot_habitat_availability_per_discharge_surface(
 # ==========================================================
 def plot_habitat_availability_per_discharge_surface_target_hab(
     csv_path,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     target_habitat,
     save_path
@@ -1053,12 +992,8 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Extract habitat columns
@@ -1171,10 +1106,8 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
 # ==========================================================
 def plot_probability_distribution_target_hab(
     csv_path,
-    habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict,
     habitat_colors_dict,
-    focus_on_zone,
     number_of_habitats,
     target_habitat,
     save_path
@@ -1184,12 +1117,8 @@ def plot_probability_distribution_target_hab(
     # -----------------------------
     # Habitat range
     # -----------------------------
-    if focus_on_zone:
-        habitat_range = [0, 1, 2]
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
-    else:
-        habitat_range = list(range(0, number_of_habitats))
-        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+    habitat_range = list(range(0, number_of_habitats))
+    habitat_labels_dict = habitat_labels_dict
 
     # -----------------------------
     # Probability columns
@@ -1421,10 +1350,8 @@ def main():
     plot_most_prob_intensity(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_hist_most_prob_and_intensity
     )
@@ -1433,10 +1360,8 @@ def main():
     plot_most_prob_intensity_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_hist_most_prob_and_intensity_target_hab
@@ -1446,10 +1371,8 @@ def main():
     plot_most_prob_percentages(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_percentages
     )
@@ -1458,10 +1381,8 @@ def main():
     plot_most_prob_percentages_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_percentages_target_hab
@@ -1472,10 +1393,8 @@ def main():
     plot_most_prob_horizontal(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_horizontal
     )
@@ -1484,10 +1403,8 @@ def main():
     plot_most_prob_horizontal_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_horizontal_target_hab
@@ -1497,10 +1414,8 @@ def main():
     output_hab_discharge = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain.png")
     plot_habitat_availability_per_discharge(
     csv_path=csv_path_static,
-    habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-    habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_labels_dict=habitat_labels_dict,
     habitat_colors_dict=habitat_colors_dict,
-    focus_on_zone=FOCUS_ON_ZONE,
     number_of_habitats=NUMBER_OF_HABITATS,
     save_path=output_hab_discharge
     )
@@ -1508,10 +1423,8 @@ def main():
     output_hab_discharge_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_target_hab.png")
     plot_habitat_availability_per_discharge_target_hab(
         csv_path=csv_path_static,
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_discharge_target_hab
@@ -1520,10 +1433,8 @@ def main():
     output_hab_discharge_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_surface.png")
     plot_habitat_availability_per_discharge_surface(
         csv_path=csv_path_static,
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_hab_discharge_surface
     )
@@ -1531,10 +1442,8 @@ def main():
     output_hab_discharge_target_hab_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_target_hab_surface.png")
     plot_habitat_availability_per_discharge_surface_target_hab(
         csv_path=csv_path_static,
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_discharge_target_hab_surface
@@ -1543,10 +1452,8 @@ def main():
     output_hab_prob_distrib_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_probabilities_target_hab.png")
     plot_probability_distribution_target_hab(
         csv_path=csv_path,
-        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
-        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_labels_dict=habitat_labels_dict,
         habitat_colors_dict=habitat_colors_dict,
-        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_prob_distrib_target_hab

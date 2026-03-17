@@ -1,15 +1,8 @@
 # =============================================================== CONFIGURATION FILE FOR THE USER OT ENTER THE PARAMETERS OF THE SIMULATION ===============================================================
 
 # --- Spatial extent of the zone to study ---
-# This indicates in which input folder the code will seach for the input shapefile 
-# If you only have one spatial scale to study, store your input shapefile into the "Full_zone" input folder, and enter "full" here 
-# If you have several zones to study, you can enter the relevant input shapefiles into the corresponding input folders and indicate here which one you want to study (you can only study one zone at a time)
-# For example, if you indicate "small", the code will search for the input shapefile in the forlder "Small_zone"
-zone_type: "full" # expected value : "small" or "bigger" or "full" and nothing else 
-# Associated input filenames : enter the names of the input shapefiles you want to study. small_zone_shp is located in the folder "Small_zone", bigger_zone_shp in the folder "Bigger_zone", and the full_zone_shp in the "Full_zone" respectively
-# small_zone_shp: "joined_layer_small_zone.shp"
-# bigger_zone_shp: "Joined_layer_bigger_zone.shp"
-full_zone_shp: "hydraulic_mesh.shp"
+# This indicates the name of the shapefile to study (that is located within the "Study_zone" folder) and the name of the columns in this shapefile containing the relevant information (depth, velocity, coordinates, id, surface)
+study_zone_shp: "hydraulic_mesh.shp"
 # Shapefile column configuration: the prefix of the columns containing the relevant information (e.g., for discharge 12.5 m3/s: "ho12.5" for the columns water depth and "vit12.5" for the water velocity)
 shp_depth_prefix: "d_"
 shp_vel_prefix: "v_"
@@ -20,19 +13,10 @@ shp_surf_colname: "area"
 
 
 # --- Temporal extent of the flow time-series ---
-# This indicates what is the temportal extent to study (you can only study one temporal extent at a time)
-# This tells the code how to make links between the input discharge csv, the relevant time scale, and how to call the output files 
-# If you only have one temporal scale to study, you can enter the one you want, make sure to adapt the following variables accordingly (name of the discharge file, and associated time scale)
-# If you have several temporal scales to study, enter here the one you want, and the code will pick the right discharge file, and create the associated output folder
-time_series_length: "middle" # expected value : "short" or "middle" or "long" and nothing else
-# Associated hydro data : name of the discharge csv input files, and their associated time step. 
-# ATTENTION: the time step needs to match the one of the .csv file. If you want to study at a different time scale, you need to change the input csv file accordingly. This means the code cannot analyze at a hourly time step a file given at a 10 minute time step. Metrics will be wrong.
-typical_short_filename: "Ticino_daily.csv"
-time_step_min_short: 10.0   # float (minutes)
-typical_middle_filename: "Ticino_weekly.csv"
-time_step_min_middle: 10.0   # float (minutes)
-typical_long_filename: "April_September_2019_delta_one_hour.csv"
-time_step_min_long: 60.0   # float (minutes)
+# 
+typical_filename: "Ticino_weekly.csv"
+time_step_min: 10.0   # float (minutes)
+
 
 
 
