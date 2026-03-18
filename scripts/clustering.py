@@ -9,11 +9,12 @@ from sklearn.decomposition import PCA
 import numpy as np
 import geopandas as gpd
 
-from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME
-
+from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH
+csv_path_to_metrics = FINAL_CSV_PATH
+shp_path_to_metrics = FINAL_SHP_PATH
 # Enter here the path to the csv file containing the metrics to cluster on (output of the main script)
-csv_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\metrics.csv"
-shp_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\mesh_with_results.shp"
+# csv_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\metrics.csv"
+# shp_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\mesh_with_results.shp"
 output_basepath = csv_path_to_metrics.replace(".csv", "_with_clusters.csv")
 df = pd.read_csv(csv_path_to_metrics)
 
@@ -269,7 +270,6 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
 
     print(f"✅ Merged shapefile saved to {output_shp_file}")
 
-"""
 df = perform_clustering_target_habitat(
     df,
     target_habitat,
@@ -279,7 +279,6 @@ df = perform_clustering_target_habitat(
 
 df.to_csv(output_basepath, index=False)
 print("✅ Clustering finished")
-"""
 
 join_mesh_with_CSV_data(
     mesh_file=shp_path_to_metrics,

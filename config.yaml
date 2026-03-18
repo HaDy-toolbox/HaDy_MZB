@@ -90,5 +90,6 @@ desiccation_thresholds:
   desicc_3: 9
 
 
-
+final_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB_organization/HaDy_MZB/data/output/Typical_week_analysis/Metric_files/metrics.csv" # expected value : string (path to the output csv file containing the metrics values for each mesh)
+final_shp_path: "C:/Users/lecrivau/source/repos/HaDy_MZB_organization/HaDy_MZB/data/output/Typical_week_analysis/Metric_files/mesh_with_results.shp" # expected value : string (path to the output shapefile containing the metrics values for each mesh)
 

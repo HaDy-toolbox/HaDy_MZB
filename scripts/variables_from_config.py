@@ -45,6 +45,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INPUT_FOLDER = PROJECT_ROOT / "data" / "input"
 OUTPUT_FOLDER = PROJECT_ROOT / "data" / "output"
 
+FINAL_CSV_PATH = _config["final_csv_path"]
+FINAL_SHP_PATH = _config["final_shp_path"]
+
 # --- Zone selection ---
 AREA_FOLDER = INPUT_FOLDER / "Study_zone"
 SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["study_zone_shp"])
