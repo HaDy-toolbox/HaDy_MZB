@@ -923,7 +923,8 @@ def plot_probability_distribution_target_hab(
         data=df_long,
         order=label_order,
         palette=palette,
-        showfliers=False
+        showfliers=False,
+        saturation=1
     )
 
     plt.xlabel("Habitat type", fontsize=18)
