@@ -998,7 +998,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
     if METRICS_TO_COMPUTE.get("drift_max", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
         bin_centers = [1, 2, 3, 4]
-        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges) # CHECK HOW IT IS ACTUALLY CALLED 
+        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges)  
         percentages = counts / counts.sum() * 100
 
         fig, ax = plt.subplots(figsize=(5, 4))

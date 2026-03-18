@@ -136,11 +136,9 @@ def compute_drift_risk(vel_seq, depth_seq, drift_thresholds):
         elif vel <= drift_thresholds["drift_1"]:
             drift.append(1)
         elif drift_thresholds["drift_1"] < vel < drift_thresholds["drift_2"]:
-            # drift.append(20)  # drift class 2 (type 0)
-            drift.append(2)  # drift class 2 (type 0)
+            drift.append(2)  
         elif drift_thresholds["drift_2"] <= vel <= drift_thresholds["drift_3"]:
-            # drift.append(21 if ramp_rate_cm_min <= drift_thresholds["drift_ramp_threshold_2"] else 3)
-            drift.append(3)  # drift class 2 (type 0)
+            drift.append(3)  
         elif vel > drift_thresholds["drift_3"]:
             drift.append(4)
         else:

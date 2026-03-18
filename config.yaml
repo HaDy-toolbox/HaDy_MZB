@@ -68,7 +68,6 @@ number_of_habitats: 7 # Integer : the number of habitats that you have based on 
 # --- Drift thresholds with drift_ramp_threshold ---
 up_ramp: false # expected value : boolean (true or false) - if true, the drift thresholds will be applied with a ramping effect (see user manual)
 # Example of drift thresholds based on current velocity thresholds (see user guide) in m/s
-# ATTENTION: NOT YET OPERATIONAL !!!
 drift_thresholds_with_ramp:
   drift_1: 0.4
   drift_2: 0.7
