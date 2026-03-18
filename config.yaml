@@ -92,4 +92,4 @@ desiccation_thresholds:
 
 final_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB_organization/HaDy_MZB/data/output/Typical_week_analysis/Metric_files/metrics.csv" # expected value : string (path to the output csv file containing the metrics values for each mesh)
 final_shp_path: "C:/Users/lecrivau/source/repos/HaDy_MZB_organization/HaDy_MZB/data/output/Typical_week_analysis/Metric_files/mesh_with_results.shp" # expected value : string (path to the output shapefile containing the metrics values for each mesh)
-
+static_habitat_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB_organization/HaDy_MZB/data/output/Typical_week_analysis/Habitat_classification/habitat_classification.csv" # expected value : string (path to the csv file containing the habitat classification of each mesh, with at least a column "id" with the mesh id and a column "hab_class" with the habitat class of each mesh)

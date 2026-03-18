@@ -47,6 +47,7 @@ OUTPUT_FOLDER = PROJECT_ROOT / "data" / "output"
 
 FINAL_CSV_PATH = _config["final_csv_path"]
 FINAL_SHP_PATH = _config["final_shp_path"]
+STATIC_HABITAT_CSV_PATH = _config["static_habitat_csv_path"]
 
 # --- Zone selection ---
 AREA_FOLDER = INPUT_FOLDER / "Study_zone"

@@ -7,14 +7,16 @@ import numpy as np
 import os
 import matplotlib.ticker as mtick
 
-from variables_from_config import HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS
+from variables_from_config import HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH
 
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
 
+csv_path = FINAL_CSV_PATH
+csv_path_static = STATIC_HABITAT_CSV_PATH
 
-csv_path = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\QGIS_to_share\Metrics_small_zone\Summer_2019\metrics.csv"
-csv_path_static = r"C:\Users\lecrivau\source\repos\HaDy_MZB\data\output\Small_zone\Summer_2019_small_scale\Desiccation_files\mesh_habitat_egg_bancs_gravier.csv" 
+# csv_path = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\QGIS_to_share\Metrics_small_zone\Summer_2019\metrics.csv"
+# csv_path_static = r"C:\Users\lecrivau\source\repos\HaDy_MZB\data\output\Small_zone\Summer_2019_small_scale\Desiccation_files\mesh_habitat_egg_bancs_gravier.csv" 
 
 habitat_labels_dict = {
     0: "Dry",
@@ -852,253 +854,6 @@ def plot_habitat_availability_per_discharge_target_hab(
     plt.savefig(save_path, dpi=600)
     plt.show()
 
-# ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN SURFACE - Habitat availability per discharge (stacked %)
-# ==========================================================
-def plot_habitat_availability_per_discharge_surface(
-    csv_path,
-    habitat_labels_dict,
-    habitat_colors_dict,
-    number_of_habitats,
-    save_path
-):
-
-    df = pd.read_csv(csv_path)
-    # -----------------------------
-    # Habitat range and labels
-    # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
-
-    # -----------------------------
-    # Extract habitat columns
-    # -----------------------------
-    habitat_columns = [col for col in df.columns if col.startswith("Hab_")]
-
-    if len(habitat_columns) == 0:
-        raise ValueError("No habitat columns starting with 'Hab_' found.")
-
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
-
-    # -----------------------------
-    # Exclude meshes that are -1 everywhere
-    # -----------------------------
-    valid_rows = ~(df[habitat_columns] == -1).all(axis=1)
-    df_valid = df.loc[valid_rows]
-
-    # Total surface of the simulated domain
-    total_surface = df_valid["surf_m2"].sum()
-
-    # -----------------------------
-    # Compute habitat surface
-    # -----------------------------
-    habitat_data = {
-        ht: [
-            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
-            for col in habitat_columns
-        ]
-        for ht in habitat_range
-    }
-
-    # -----------------------------
-    # Plot
-    # -----------------------------
-    plt.figure(figsize=(16, 8))
-
-    x = discharges
-    bottom = np.zeros(len(x))
-
-    for ht in habitat_range:
-
-        values = habitat_data[ht]
-        percent_values = [v / total_surface * 100 for v in values]
-
-        plt.bar(
-            range(len(x)),
-            percent_values,
-            bottom=bottom,
-            width=0.8,
-            label=habitat_labels_dict[ht],
-            color=habitat_colors_dict[ht]
-        )
-        # Add labels
-        for i, (pv, b) in enumerate(zip(percent_values, bottom)):
-            if pv > 1:  # avoid clutter for tiny values
-                plt.text(
-                    i,
-                    b + pv / 2,
-                    f"{pv:.1f}",
-                    ha='center',
-                    va='center',
-                    fontsize=15,
-                    color='black'
-                )
-        bottom += np.array(percent_values)
-
-    # -----------------------------
-    # Formatting
-    # -----------------------------
-    plt.xticks(
-        range(len(x)),
-        [f"{val:g}" for val in x],
-        rotation=90,
-        fontsize=16
-    )
-
-    plt.yticks(fontsize=16)
-
-    plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
-
-    plt.ylabel(
-        "Habitat availability\n[% of the simulated surface]",
-        fontsize=18,
-        labelpad=15
-    )
-
-    plt.title("Habitat availability per discharge", fontsize=20, pad=20)
-
-    plt.legend(
-        title="Habitat Type",
-        bbox_to_anchor=(1.05, 1),
-        loc='upper left',
-        fontsize=14,
-        title_fontsize=16
-    )
-
-    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
-
-    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-
-    plt.tight_layout()
-
-    plt.savefig(save_path, dpi=600)
-
-    plt.show()
-
-# ==========================================================
-# FUNCTION: TARGET HABITAT - IN SURFACE - Habitat availability per discharge (stacked %)
-# ==========================================================
-def plot_habitat_availability_per_discharge_surface_target_hab(
-    csv_path,
-    habitat_labels_dict,
-    habitat_colors_dict,
-    number_of_habitats,
-    target_habitat,
-    save_path
-):
-
-    df = pd.read_csv(csv_path)
-
-    # -----------------------------
-    # Habitat range and labels
-    # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
-
-    # -----------------------------
-    # Extract habitat columns
-    # -----------------------------
-    habitat_columns = [col for col in df.columns if col.startswith("Hab_")]
-
-    if len(habitat_columns) == 0:
-        raise ValueError("No habitat columns starting with 'Hab_' found.")
-
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
-
-    # -----------------------------
-    # Remove meshes that are -1 everywhere
-    # -----------------------------
-    valid_rows = ~(df[habitat_columns] == -1).all(axis=1)
-    df_valid = df.loc[valid_rows]
-
-    # -----------------------------
-    # Keep only meshes that experience target habitat
-    # -----------------------------
-    has_target = (df_valid[habitat_columns] == target_habitat).any(axis=1)
-    df_valid = df_valid.loc[has_target]
-
-    # Total surface of filtered patches
-    total_surface = df_valid["surf_m2"].sum()
-
-    # -----------------------------
-    # Compute habitat surface
-    # -----------------------------
-    habitat_data = {
-        ht: [
-            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
-            for col in habitat_columns
-        ]
-        for ht in habitat_range
-    }
-
-    # -----------------------------
-    # Plot
-    # -----------------------------
-    plt.figure(figsize=(16, 8))
-
-    x = discharges
-    bottom = np.zeros(len(x))
-
-    for ht in habitat_range:
-
-        values = habitat_data[ht]
-        percent_values = [v / total_surface * 100 for v in values]
-
-        bars = plt.bar(
-            range(len(x)),
-            percent_values,
-            bottom=bottom,
-            width=0.8,
-            label=habitat_labels_dict[ht],
-            color=habitat_colors_dict[ht]
-        )
-
-        # Add percentage labels
-        for i, (pv, b) in enumerate(zip(percent_values, bottom)):
-            if pv > 2:  # avoid clutter for tiny segments
-                plt.text(
-                    i,
-                    b + pv / 2,
-                    f"{pv:.1f}",
-                    ha='center',
-                    va='center',
-                    fontsize=15,
-                    color='black'
-                )
-
-        bottom += np.array(percent_values)
-
-    # -----------------------------
-    # Formatting
-    # -----------------------------
-    plt.xticks(
-        range(len(x)),
-        [f"{val:g}" for val in x],
-        rotation=90,
-        fontsize=16
-    )
-
-    plt.yticks(fontsize=16)
-    plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
-    plt.ylabel(
-        "Habitat availability\n[% of the surface of patches experiencing the target habitat\n during the flow time-series]",
-        fontsize=18,
-        labelpad=15
-    )
-    plt.title("Habitat availability per discharge", fontsize=20, pad=20)
-    plt.legend(
-        title="Habitat Type",
-        bbox_to_anchor=(1.05, 1),
-        loc='upper left',
-        fontsize=14,
-        title_fontsize=16
-    )
-
-    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
-    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=600)
-    plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Habitat probability for each habitat type
@@ -1243,7 +998,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
     if METRICS_TO_COMPUTE.get("drift_max", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
         bin_centers = [1, 2, 3, 4]
-        counts, _ = np.histogram(filtered_df[f'percDrift{target_habitat}'], bins=bin_edges) # CHECK HOW IT IS ACTUALLY CALLED 
+        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges) # CHECK HOW IT IS ACTUALLY CALLED 
         percentages = counts / counts.sum() * 100
 
         fig, ax = plt.subplots(figsize=(5, 4))
@@ -1303,10 +1058,10 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         # Set x-axis labels
         if len(unique_vals) > 4:
             ax.set_xticks(x)
-            ax.set_xticklabels([f"{bin_edges[i]}-{bin_edges[i+1]-1}" for i in range(len(bin_edges)-1)])
+            ax.set_xticklabels([f"{bin_edges[i]}-{bin_edges[i+1]-1}" for i in range(len(bin_edges)-1)], rotation=45, ha='right')
         else:
             ax.set_xticks(x)
-            ax.set_xticklabels([str(int(val)) for val in unique_vals])
+            ax.set_xticklabels([str(int(val)) for val in unique_vals], rotation=45, ha='right')
         
         ax.tick_params(labelsize=20)
         plt.tight_layout()
@@ -1428,25 +1183,6 @@ def main():
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_discharge_target_hab
-    )
-    
-    output_hab_discharge_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_surface.png")
-    plot_habitat_availability_per_discharge_surface(
-        csv_path=csv_path_static,
-        habitat_labels_dict=habitat_labels_dict,
-        habitat_colors_dict=habitat_colors_dict,
-        number_of_habitats=NUMBER_OF_HABITATS,
-        save_path=output_hab_discharge_surface
-    )
-
-    output_hab_discharge_target_hab_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_target_hab_surface.png")
-    plot_habitat_availability_per_discharge_surface_target_hab(
-        csv_path=csv_path_static,
-        habitat_labels_dict=habitat_labels_dict,
-        habitat_colors_dict=habitat_colors_dict,
-        number_of_habitats=NUMBER_OF_HABITATS,
-        target_habitat=HABITAT_TARGETS,
-        save_path=output_hab_discharge_target_hab_surface
     )
 
     output_hab_prob_distrib_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_probabilities_target_hab.png")
