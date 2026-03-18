@@ -73,10 +73,10 @@ SHP_SURF_COLNAME = _config["shp_surf_colname"]
 
 # --- Threshold dictionaries ---
 HABITAT_VELOCITY_THRESHOLDS = _config["habitat_velocity_thresholds"]
-DRIFT_THRESHOLDS = _config["drift_thresholds_with_ramp"]
+DRIFT_THRESHOLDS_WITH_RAMP = _config["drift_thresholds_with_ramp"]
 DRIFT_THRESHOLDS_NO_RAMP = _config["drift_thresholds"]
 DESICCATION_THRESHOLDS = _config["desiccation_thresholds"]
-
+UP_RAMP = _config["up_ramp"]
 
 # ====================================================
 # ================== RUN FUNCTION ====================

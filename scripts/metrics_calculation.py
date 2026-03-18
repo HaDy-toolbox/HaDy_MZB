@@ -8,6 +8,7 @@ from variables_from_config import TIMESTEPS_PER_DAY
 from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME 
 from variables_from_config import METRICS_TO_COMPUTE
 from variables_from_config import SUITABLE_HAB_SHIFTS
+from variables_from_config import UP_RAMP, DRIFT_THRESHOLDS_WITH_RAMP
 
 # ===================== Metrics calculation ======================
 # ================================================================
@@ -146,6 +147,36 @@ def compute_drift_risk(vel_seq, depth_seq, drift_thresholds):
             drift.append(np.nan)
     return drift
 
+def compute_drift_risk_with_up_ramping(vel_seq, depth_seq, drift_thresholds, ramp_rate_cm_min):
+    """
+    Computes drift risk per timestep using velocity and up-ramping rate.
+    """
+    drift = []
+
+    for j in range(len(vel_seq)):
+        vel = vel_seq[j]
+        if j > 0:
+            delta_depth = depth_seq[j] - depth_seq[j - 1] #now - previously. we only have a look at upramping here so sign does not matter
+            ramp_rate_cm_min = (delta_depth / TIME_STEP_MIN) * 100  # cm/min over 10 min
+        else:
+            ramp_rate_cm_min = 0
+
+        if np.isnan(vel):
+            drift.append(np.nan)
+        elif vel <= drift_thresholds["drift_1"]:
+            drift.append(1)
+        elif drift_thresholds["drift_1"] < vel < drift_thresholds["drift_2"]:
+            drift.append(20)  # drift class 2 (type 0)
+            # drift.append(2)  # drift class 2 (type 0)
+        elif drift_thresholds["drift_2"] <= vel <= drift_thresholds["drift_3"]:
+            drift.append(21 if ramp_rate_cm_min <= drift_thresholds["drift_ramp_threshold_2"] else 3)
+            # drift.append(3)  # drift class 2 (type 0)
+        elif vel > drift_thresholds["drift_3"]:
+            drift.append(4)
+        else:
+            drift.append(np.nan)
+    return drift
+
 def compute_drift_percentile_class(drift_series, percentile=90):
     """Returns drift risk percentile class (1–4)."""
     valid = [r for r in drift_series if r in [1, 2, 3, 4, 20, 21]] #I keep the 2 for wen no data on ramping rate: it is just 2 
@@ -229,19 +260,36 @@ def compute_habitat_metrics(
         or metrics_to_compute.get("drift_max", False)
         or metrics_to_compute.get("drift_durations", False)
     ):
+        if UP_RAMP:
+            drift_series = compute_drift_risk_with_up_ramping(
+                vel_seq,
+                dep_seq,
+                DRIFT_THRESHOLDS_WITH_RAMP,
+                ramp_rate_cm_min=DRIFT_THRESHOLDS_WITH_RAMP["drift_ramp_threshold_2"]
+            )
+            if metrics_to_compute.get("drift_durations", False):
+                # Map drift 20 or 21 to class 2
+                mapped_drift_series = [2 if d in (20, 21) else d for d in drift_series]
 
-        drift_series = compute_drift_risk(
-            vel_seq,
-            dep_seq,
-            drift_thresholds
-        )
+                drift_durations = {
+                    f"dur_drift_{d}": mapped_drift_series.count(d)
+                    for d in [1, 2, 3, 4]
+                }
+                results.update(drift_durations)
+        
+        else:
+            drift_series = compute_drift_risk(
+                vel_seq,
+                dep_seq,
+                drift_thresholds
+            )
 
-        if metrics_to_compute.get("drift_durations", False):
-            drift_durations = {
-                f"dur_drift_{d}": drift_series.count(d)
-                for d in [1, 2, 3, 4]
-            }
-            results.update(drift_durations)
+            if metrics_to_compute.get("drift_durations", False):
+                drift_durations = {
+                    f"dur_drift_{d}": drift_series.count(d)
+                    for d in [1, 2, 3, 4]
+                }
+                results.update(drift_durations)
 
         if metrics_to_compute.get("drift_percentile", False):
             results["DriftPerc"] = compute_drift_percentile_class(
@@ -379,27 +427,6 @@ def compute_mesh_metrics_for_row_boolean(
             # Save timestep index
             results[prefix + "first_occurrence_time"] = first_idx
 
-            """
-            # 2️⃣ Slice if requested
-            if start_at_first_occurrence:
-                habitat_seq_used = habitat_seq[first_idx:]
-                velocity_seq_used = velocity_seq[first_idx:]
-                depth_seq_used = depth_seq[first_idx:]
-            else:
-                habitat_seq_used = habitat_seq
-                velocity_seq_used = velocity_seq
-                depth_seq_used = depth_seq
-
-            # 3️⃣ Compute metrics
-            metrics = compute_habitat_metrics(
-                habitat_seq_used,
-                velocity_seq_used,
-                depth_seq_used,
-                drift_thresholds,
-                desiccation_thresholds,
-                METRICS_TO_COMPUTE
-            )
-            """
             # --------------------------------------------------
             # 1️⃣ Compute ALL metrics on full sequence
             # --------------------------------------------------
