@@ -11,7 +11,7 @@ import numpy as np
 from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS
 
 # Enter here the path to the csv file containing the metrics to cluster on (output of the main script)
-csv_path_to_metrics = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\QGIS_to_share\Metrics_small_zone\Day\metrics.csv"
+csv_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis\Metric_files\metrics.csv"
 output_basepath = csv_path_to_metrics.replace(".csv", "_with_clusters.csv")
 df = pd.read_csv(csv_path_to_metrics)
 
@@ -57,7 +57,7 @@ def perform_clustering_target_habitat(
     # Determine max possible clusters
     # -----------------------------
     n_unique_points = np.unique(X_scaled, axis=0).shape[0]
-    max_possible_k = min(10, n_unique_points)  # limit upper bound to unique points
+    max_possible_k = min(9, n_unique_points)  # limit upper bound to unique points
     if max_possible_k < 2:
         print("⚠️ Not enough unique points for clustering.")
         df.loc[indices, f"cluster_{target_habitat}"] = 0
