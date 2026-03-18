@@ -170,30 +170,31 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
 
     COLUMN_RENAME_MAP = { # Rename columns to respect shapefile 10-char limit
         "hab3_shift_all_daily": "h3_sh_all",
-        "hab3_shift_targ_daily": "h3_sh_to3", 
+        "hab3_shift_targ_daily": "h3_sh_suit", 
+        "hab3_shift_dry_daily": "h3_sh_dry",
         "hab3_DryMax": "h3_drymax",
         "hab3_DesicRisk": "h3_desic",
         "hab3_DriftPerc": "h3_driftP",
         "hab3_DriftMax": "h3_driftM",
         "hab3_dur_drift_1": "h3_dd_1",
-        "hab3_dur_drift_20": "h3_dd_20",
-        "hab3_dur_drift_21": "h3_dd_21",
+        "hab3_dur_drift_2": "h3_dd_2",
         "hab3_dur_drift_3": "h3_dd_3",
         "hab3_dur_drift_4": "h3_dd_4",
         "hab3_maxDry": "h3_maxDry",
         "hab3_desicRisk": "h3_desR",
         "hab3_percDrift": "h3_PDrift",
         "hab3_maxDrift": "h3_MDrift", 
+        "hab3_first_occurrence_time": "hab3_first",
 
         "hab2_shift_all_daily": "h2_sh_all",
-        "hab2_shift_targ_daily": "h2_sh_to2",
+        "hab2_shift_targ_daily": "h2_sh_suit",
+        "hab2_shift_dry_daily": "h2_sh_dry",
         "hab2_DryMax": "h2_drymax",
         "hab2_DesicRisk": "h2_desic",
         "hab2_DriftPerc": "h2_driftP",
         "hab2_DriftMax": "h2_driftM",
         "hab2_dur_drift_1": "h2_dd_1",
-        "hab2_dur_drift_20": "h2_dd_20",
-        "hab2_dur_drift_21": "h2_dd_21",
+        "hab2_dur_drift_2": "h2_dd_2",
         "hab2_dur_drift_3": "h2_dd_3",
         "hab2_dur_drift_4": "h2_dd_4",
         "hab2_maxDry": "h2_maxDry",
@@ -202,7 +203,8 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
         "hab2_maxDrift": "h2_MDrift",
         "hab2_shift_dry_daily": "h2_sh_dry",
         "hab2_first_occurrence_time": "h2_1st_tim",
-        "prob_hab_-1": "h2_prob_-1"
+        "prob_hab_-1": "h2_prob_-1",
+        "hab2_first_occurrence_time": "hab2_first"
     }
 
     # Apply only existing columns
