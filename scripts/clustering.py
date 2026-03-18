@@ -7,11 +7,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
 import numpy as np
+import geopandas as gpd
 
-from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS
+from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME
 
 # Enter here the path to the csv file containing the metrics to cluster on (output of the main script)
 csv_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\metrics.csv"
+shp_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\mesh_with_results.shp"
 output_basepath = csv_path_to_metrics.replace(".csv", "_with_clusters.csv")
 df = pd.read_csv(csv_path_to_metrics)
 
@@ -173,7 +175,101 @@ def perform_clustering_target_habitat(
 
     return df
 
+def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
+    """
+    Join a GeoDataFrame (mesh geometry) with a results DataFrame and save to a new shapefile.
 
+    Parameters:
+    - mesh_file: str, path to the mesh shapefile (polygons or points)
+    - csv_file: str, path to the CSV file with results
+    - output_shp_file: str, path to save the merged shapefile
+    - id_col: str, column name to join on (default "id")
+    """
+    mesh_gdf = gpd.read_file(mesh_file)  # Load base mesh geometry
+    results_df = pd.read_csv(csv_file)   # Load results
+
+    # ==========================================================
+    # 🔥 NEW: keep only columns that are NOT already in shapefile
+    # ==========================================================
+    cols_to_add = [
+        col for col in results_df.columns
+        if col not in mesh_gdf.columns or col == id_col
+    ]
+
+    results_df = results_df[cols_to_add]
+
+    print(f"Columns added to shapefile: {[c for c in cols_to_add if c != id_col]}")
+
+    # -----------------------------
+    # Merge on the specified ID column
+    # -----------------------------
+    mesh_with_results = mesh_gdf.merge(results_df, on=id_col, how="left")
+
+    # -----------------------------
+    # Rename columns to respect shapefile 10-char limit
+    # -----------------------------
+    COLUMN_RENAME_MAP = {
+        "hab3_shift_all_daily": "h3_sh_all",
+        "hab3_shift_targ_daily": "h3_sh_suit", 
+        "hab3_shift_dry_daily": "h3_sh_dry",
+        "hab3_DryMax": "h3_drymax",
+        "hab3_DesicRisk": "h3_desic",
+        "hab3_DriftPerc": "h3_driftP",
+        "hab3_DriftMax": "h3_driftM",
+        "hab3_dur_drift_1": "h3_dd_1",
+        "hab3_dur_drift_2": "h3_dd_2",
+        "hab3_dur_drift_3": "h3_dd_3",
+        "hab3_dur_drift_4": "h3_dd_4",
+        "hab3_maxDry": "h3_maxDry",
+        "hab3_desicRisk": "h3_desR",
+        "hab3_percDrift": "h3_PDrift",
+        "hab3_maxDrift": "h3_MDrift", 
+        "hab3_first_occurrence_time": "hab3_first",
+
+        "hab2_shift_all_daily": "h2_sh_all",
+        "hab2_shift_targ_daily": "h2_sh_suit",
+        "hab2_shift_dry_daily": "h2_sh_dry",
+        "hab2_DryMax": "h2_drymax",
+        "hab2_DesicRisk": "h2_desic",
+        "hab2_DriftPerc": "h2_driftP",
+        "hab2_DriftMax": "h2_driftM",
+        "hab2_dur_drift_1": "h2_dd_1",
+        "hab2_dur_drift_2": "h2_dd_2",
+        "hab2_dur_drift_3": "h2_dd_3",
+        "hab2_dur_drift_4": "h2_dd_4",
+        "hab2_maxDry": "h2_maxDry",
+        "hab2_desicRisk": "h2_desR",
+        "hab2_percDrift": "h2_PDrift",
+        "hab2_maxDrift": "h2_MDrift",
+        "hab2_shift_dry_daily": "h2_sh_dry",
+        "hab2_first_occurrence_time": "h2_1st_tim",
+        "prob_hab_-1": "h2_prob_-1",
+        "hab2_first_occurrence_time": "hab2_first"
+    }
+
+    # Apply only existing columns
+    rename_existing = {
+        old: new
+        for old, new in COLUMN_RENAME_MAP.items()
+        if old in mesh_with_results.columns
+    }
+    mesh_with_results = mesh_with_results.rename(
+        columns={k: v for k, v in COLUMN_RENAME_MAP.items() if k in mesh_with_results.columns}
+    )
+
+    # -----------------------------
+    # 🔥 FINAL SAFETY: remove duplicate column names
+    # -----------------------------
+    mesh_with_results = mesh_with_results.loc[:, ~mesh_with_results.columns.duplicated()]
+
+    # -----------------------------
+    # Save shapefile
+    # -----------------------------
+    mesh_with_results.to_file(output_shp_file)
+
+    print(f"✅ Merged shapefile saved to {output_shp_file}")
+
+"""
 df = perform_clustering_target_habitat(
     df,
     target_habitat,
@@ -183,3 +279,11 @@ df = perform_clustering_target_habitat(
 
 df.to_csv(output_basepath, index=False)
 print("✅ Clustering finished")
+"""
+
+join_mesh_with_CSV_data(
+    mesh_file=shp_path_to_metrics,
+    csv_file=output_basepath,
+    output_shp_file=shp_path_to_metrics.replace(".shp", "_with_clusters.shp"),
+    id_col=SHP_ID_COLNAME
+)
