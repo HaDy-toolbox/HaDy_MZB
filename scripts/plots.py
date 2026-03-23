@@ -6,6 +6,8 @@ import scikit_posthocs as sp
 import numpy as np
 import os
 import matplotlib.ticker as mtick
+import matplotlib.colors as mcolors
+
 
 from variables_from_config import HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH
 
@@ -40,6 +42,11 @@ habitat_colors_dict = {
 }
 
 # SUPPORT FUNCTIONS -------------------------------------------------------------------------------------------------------------------------------------------------
+def get_text_color(bg_color):
+    r, g, b = mcolors.to_rgb(bg_color)
+    luminance = 0.299*r + 0.587*g + 0.114*b
+    return 'white' if luminance < 0.5 else 'black'
+
 # ==========================================================
 # FUNCTION: Extract intensity column (vectorized, fast)
 # ==========================================================
@@ -685,6 +692,7 @@ def plot_habitat_availability_per_discharge(
         # Add labels
         for i, (pv, b) in enumerate(zip(percent_values, bottom)):
             if pv > 1:  # avoid clutter for tiny values
+                text_color = get_text_color(habitat_colors_dict[ht])
                 plt.text(
                     i,
                     b + pv / 2,
@@ -692,7 +700,7 @@ def plot_habitat_availability_per_discharge(
                     ha='center',
                     va='center',
                     fontsize=15,
-                    color='black'
+                    color=text_color
                 )
 
         bottom += np.array(percent_values)
@@ -811,6 +819,7 @@ def plot_habitat_availability_per_discharge_target_hab(
         # Add labels
         for i, (pv, b) in enumerate(zip(percent_values, bottom)):
             if pv > 1:  # avoid clutter for tiny values
+                text_color = get_text_color(habitat_colors_dict[ht])
                 plt.text(
                     i,
                     b + pv / 2,
@@ -818,7 +827,7 @@ def plot_habitat_availability_per_discharge_target_hab(
                     ha='center',
                     va='center',
                     fontsize=15,
-                    color='black'
+                    color=text_color
                 )
 
         bottom += np.array(percent_values)
