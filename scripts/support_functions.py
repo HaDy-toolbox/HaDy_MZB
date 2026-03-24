@@ -180,10 +180,7 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
         "hab3_dur_drift_2": "h3_dd_2",
         "hab3_dur_drift_3": "h3_dd_3",
         "hab3_dur_drift_4": "h3_dd_4",
-        "hab3_maxDry": "h3_maxDry",
-        "hab3_desicRisk": "h3_desR",
-        "hab3_percDrift": "h3_PDrift",
-        "hab3_maxDrift": "h3_MDrift", 
+        "prob_hab_-1": "h3_prob_-1",
         "hab3_first_occurrence_time": "hab3_first",
 
         "hab2_shift_all_daily": "h2_sh_all",
@@ -197,12 +194,6 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
         "hab2_dur_drift_2": "h2_dd_2",
         "hab2_dur_drift_3": "h2_dd_3",
         "hab2_dur_drift_4": "h2_dd_4",
-        "hab2_maxDry": "h2_maxDry",
-        "hab2_desicRisk": "h2_desR",
-        "hab2_percDrift": "h2_PDrift",
-        "hab2_maxDrift": "h2_MDrift",
-        "hab2_shift_dry_daily": "h2_sh_dry",
-        "hab2_first_occurrence_time": "h2_1st_tim",
         "prob_hab_-1": "h2_prob_-1",
         "hab2_first_occurrence_time": "hab2_first"
     }

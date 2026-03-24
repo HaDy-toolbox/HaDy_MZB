@@ -379,15 +379,6 @@ def compute_mesh_metrics_for_row_boolean(
     desiccation_thresholds,
     target_habitat
 ):
-    """
-    Compute metrics for one mesh element.
-
-    Parameters
-    ----------
-    start_at_first_occurrence : bool
-        If True, metrics are computed only from the first timestep
-        where the target habitat appears.
-    """
 
     results = {
         "id": row[SHP_ID_COLNAME],

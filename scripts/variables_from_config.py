@@ -55,7 +55,7 @@ SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["study_zone_shp"])
 
 
 # --- Time selection - output folders creation---
-OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Typical_week_analysis")
+OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Typical_day_analysis")
 os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
 TIME_STEP_MIN = _config["time_step_min"]
 TYPICAL_FLOW_FILENAME = _config["typical_filename"]

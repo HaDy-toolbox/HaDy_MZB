@@ -14,7 +14,8 @@ shp_surf_colname: "area"
 
 # --- Temporal extent of the flow time-series ---
 # Name of the file containted in the "Flow_time_series" folder containing the flow time-series to analyze (the expected format is a csv file with at least the column "Discharge")
-typical_filename: "Ticino_weekly.csv"
+# typical_filename: "Ticino_weekly.csv"
+typical_filename: "Ticino_daily.csv"
 time_step_min: 10.0   # float (minutes)
 
 # --- Habitat type to analyze ---
@@ -22,7 +23,7 @@ time_step_min: 10.0   # float (minutes)
 # The expected format is an integer, from the habitat classification definition (see part habitat classification in the user manual) 
 # Example for the gravel bank study: -1: not in the gravel banks; 0: dry; 1: depth or velocity ranges not ok; 2: available for egg deposition
 target_habitat:
-  - 3 # expected value : integer from the habitat classification definition
+  - 2 # expected value : integer from the habitat classification definition
 
 
 # --- Metrics parameters ---
