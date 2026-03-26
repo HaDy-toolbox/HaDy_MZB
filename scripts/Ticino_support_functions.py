@@ -57,6 +57,12 @@ gdf = gpd.GeoDataFrame({
     "area": cell_area
 }, geometry=polygons, crs=crs)
 
+# add elevation values (z)
+with rasterio.open(dsm_file) as src:
+    z_data = src.read(1).flatten()
+
+gdf["z"] = z_data
+
 # add depth values
 for file in depth_files:
     discharge = os.path.basename(file).replace("d_", "").replace(".tif", "")
@@ -75,11 +81,6 @@ for file in vel_files:
     
     gdf[f"v_{discharge}"] = data
 
-# add elevation values (z)
-with rasterio.open(dsm_file) as src:
-    z_data = src.read(1).flatten()
-
-gdf["z"] = z_data
 
 # remove nodata cells if needed
 gdf = gdf.dropna()
@@ -87,10 +88,10 @@ gdf = gdf.dropna()
 # round all numeric columns to 2 decimals
 for col in gdf.columns:
     if col != "geometry":
-        gdf[col] = np.round(gdf[col], 2)
-        
+        gdf[col] = (gdf[col] * 100).round().astype(np.int32) / 100
+
 # save shapefile
-output = os.path.join(folder, "hydraulic_mesh.shp")
+output = os.path.join(folder, "hydraulic_mesh_with_elevation.shp")
 gdf.to_file(output)
 
 print("Shapefile saved:", output)
