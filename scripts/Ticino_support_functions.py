@@ -11,6 +11,7 @@ folder = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\Ticino_case
 
 depth_files = sorted(glob.glob(os.path.join(folder, "d_*.tif")))
 vel_files   = sorted(glob.glob(os.path.join(folder, "v_*.tif")))
+dsm_file = os.path.join(folder, "DSM_2056_pix_size_0_5_Computational_mesh.tif")
 
 # read reference raster (first depth raster)
 with rasterio.open(depth_files[0]) as src:
@@ -74,9 +75,20 @@ for file in vel_files:
     
     gdf[f"v_{discharge}"] = data
 
+# add elevation values (z)
+with rasterio.open(dsm_file) as src:
+    z_data = src.read(1).flatten()
+
+gdf["z"] = z_data
+
 # remove nodata cells if needed
 gdf = gdf.dropna()
 
+# round all numeric columns to 2 decimals
+for col in gdf.columns:
+    if col != "geometry":
+        gdf[col] = np.round(gdf[col], 2)
+        
 # save shapefile
 output = os.path.join(folder, "hydraulic_mesh.shp")
 gdf.to_file(output)
