@@ -70,7 +70,9 @@ for file in depth_files:
     with rasterio.open(file) as src:
         data = src.read(1).flatten()
     
-    gdf[f"d_{discharge}"] = data
+    # gdf[f"d_{discharge}"] = data # with decimals (e.g., 10.5)
+    safe_discharge = discharge.replace(".", "_")
+    gdf[f"d_{safe_discharge}"] = data
 
 # add velocity values
 for file in vel_files:
@@ -79,7 +81,10 @@ for file in vel_files:
     with rasterio.open(file) as src:
         data = src.read(1).flatten()
     
-    gdf[f"v_{discharge}"] = data
+    # gdf[f"v_{discharge}"] = data # with decimals (e.g., 10.5)
+    safe_discharge = discharge.replace(".", "_")
+    gdf[f"v_{safe_discharge}"] = data
+
 
 
 # remove nodata cells if needed
@@ -91,7 +96,7 @@ for col in gdf.columns:
         gdf[col] = (gdf[col] * 100).round().astype(np.int32) / 100
 
 # save shapefile
-output = os.path.join(folder, "hydraulic_mesh_with_elevation.shp")
+output = os.path.join(folder, "hydraulic_mesh_with_elevation_with_underscores.shp")
 gdf.to_file(output)
 
 print("Shapefile saved:", output)
