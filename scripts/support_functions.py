@@ -1,10 +1,24 @@
 import geopandas as gpd
 import pandas as pd
 
+def discharge_to_col_str(q: float) -> str:
+    """Convert a discharge value to its column-name string representation.
+    4 → '4', 12.8 → '12_8'
+    """
+    q_str = str(int(q)) if float(q).is_integer() else str(q)
+    return q_str.replace('.', '_')
+
+def col_str_to_discharge(s: str) -> float:
+    """Convert a column-name string back to a float discharge value.
+    '4' → 4.0, '12_8' → 12.8
+    """
+    return float(s.replace('_', '.'))
+
 # ==================================================================
 # =========== Gets discharge data from shp input file ==============
 # ==================================================================
-def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
+# old version when discharge values in column names had decimals (e.g., 'ho12.8')
+
     """
     Extract discharge values from a GeoDataFrame based on depth/velocity column prefixes.
 
@@ -17,6 +31,8 @@ def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
     - discharges: sorted list of float discharge values
     - discharge_columns: dict mapping discharge -> {'depth': col_name, 'velocity': col_name}
     """
+"""
+def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
     # Find all columns that start with the depth prefix
     depth_cols = [col for col in shp_file_data.columns if col.startswith(depth_prefix)]
     
@@ -33,14 +49,32 @@ def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
     
     # return discharges, discharge_columns
     return discharges
+"""
 
+def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
+    depth_cols = [col for col in shp_file_data.columns if col.startswith(depth_prefix)]
 
+    discharges = sorted([
+        col_str_to_discharge(col[len(depth_prefix):])   # strip prefix, then convert
+        for col in depth_cols
+    ])
+
+    discharge_columns = {}
+    for q in discharges:
+        q_str = discharge_to_col_str(q)
+        discharge_columns[q] = {
+            'depth':    f"{depth_prefix}{q_str}",
+            'velocity': f"{velocity_prefix}{q_str}",
+        }
+
+    return discharges
 
 # ==================================================================
 # ===== Filters the corresponding known discharges from the flow time-series 
 # and then keeps only the meshes withing the wetted mask =====
 # ==================================================================
 #
+   
 def prepare_wetted_shapefile_for_relevant_discharges(
     gdf,
     relevant_discharges,
@@ -86,8 +120,9 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     discharge_cols = []
 
     for q in relevant_discharges:
-        q_str = str(int(q)) if float(q).is_integer() else str(q)
+        # q_str = str(int(q)) if float(q).is_integer() else str(q) # old version when discharge values in column names had decimals (e.g., 'ho12.8')
         # q_str = f"{q:g}"
+        q_str = discharge_to_col_str(q)
 
         depth_col = f"{depth_prefix}{q_str}"
         vel_col = f"{velocity_prefix}{q_str}"
@@ -120,7 +155,8 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     # 5. Filter wetted meshes at max discharge
     # --------------------------------------------------
     max_q = max(relevant_discharges)
-    max_q_str = str(int(max_q)) if float(max_q).is_integer() else str(max_q)
+    # max_q_str = str(int(max_q)) if float(max_q).is_integer() else str(max_q) # old version when discharge values in column names had decimals (e.g., 'ho12.8')
+    max_q_str = discharge_to_col_str(max_q)
     max_depth_col = f"{depth_prefix}{max_q_str}"
 
     if max_depth_col not in out_gdf.columns:
@@ -140,6 +176,7 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     )
 
     return out_gdf
+
 
 # ==================================================================
 # Exports a shp as a .csv

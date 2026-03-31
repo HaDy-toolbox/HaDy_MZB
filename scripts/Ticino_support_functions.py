@@ -90,13 +90,15 @@ for file in vel_files:
 # remove nodata cells if needed
 gdf = gdf.dropna()
 
+""" 
 # round all numeric columns to 2 decimals
 for col in gdf.columns:
     if col != "geometry":
         gdf[col] = (gdf[col] * 100).round().astype(np.int32) / 100
+"""
 
 # save shapefile
-output = os.path.join(folder, "hydraulic_mesh_with_elevation_with_underscores.shp")
+output = os.path.join(folder, "hydraulic_mesh_underscores_decimals.shp")
 gdf.to_file(output)
 
 print("Shapefile saved:", output)

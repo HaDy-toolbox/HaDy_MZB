@@ -2,7 +2,7 @@
 
 # --- Spatial extent of the zone to study ---
 # This indicates the name of the shapefile to study (that is located within the "Study_zone" folder) and the name of the columns in this shapefile containing the relevant information (depth, velocity, coordinates, id, surface)
-study_zone_shp: "hydraulic_mesh.shp"
+study_zone_shp: "hydraulic_mesh_underscores_decimals.shp"
 # Shapefile column configuration: the prefix of the columns containing the relevant information (e.g., for discharge 12.5 m3/s: "ho12.5" for the columns water depth and "vit12.5" for the water velocity)
 shp_depth_prefix: "d_"
 shp_vel_prefix: "v_"

@@ -15,16 +15,12 @@ from variables_from_config import UP_RAMP, DRIFT_THRESHOLDS_WITH_RAMP
 
 # helper functions
 def format_col(prefix, discharge):
-    """Formats column names consistently."""
-    # return f"{prefix}_{str(discharge).replace('.', '_')}"
+    """Formats column names consistently. 4 → 'Hab_4', 12.8 → 'Hab_12_8'"""
     if float(discharge).is_integer():
         q_str = str(int(discharge))
     else:
-        q_str = str(discharge)
+        q_str = str(discharge).replace('.', '_')   # ← just add this replace
     return f"{prefix}_{q_str}"
-    # 16.0 → Hab_16
-    # 20.5 → Hab_20.5
-
 
 def max_run_length(seq, valid_vals):
     """Computes the longest continuous sequence of valid values."""
