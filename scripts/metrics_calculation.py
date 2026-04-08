@@ -291,10 +291,8 @@ def compute_habitat_metrics(
             )
 
         if metrics_to_compute.get("drift_max", False):
-            results["DriftMax"] = max(
-                [d for d in drift_series if not np.isnan(d)],
-                default=np.nan
-            )
+            mapped = [2 if d in (20, 21) else d for d in drift_series if not np.isnan(d)]
+            results["DriftMax"] = max(mapped, default=np.nan)
 
     return results
 
