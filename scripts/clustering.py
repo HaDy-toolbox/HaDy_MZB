@@ -9,16 +9,18 @@ from sklearn.decomposition import PCA
 import numpy as np
 import geopandas as gpd
 
-from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH
+from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH, OUTPUT_FOLDER_TIME
 csv_path_to_metrics = FINAL_CSV_PATH
 shp_path_to_metrics = FINAL_SHP_PATH
-# Enter here the path to the csv file containing the metrics to cluster on (output of the main script)
-# csv_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\metrics.csv"
-# shp_path_to_metrics = r"C:\Users\lecrivau\source\repos\HaDy_MZB_organization\HaDy_MZB\data\output\Typical_week_analysis_hab3\Metric_files\mesh_with_results.shp"
-output_basepath = csv_path_to_metrics.replace(".csv", "_with_clusters.csv")
+
+clustering_dir = os.path.join(OUTPUT_FOLDER_TIME, "Clustering")
+os.makedirs(clustering_dir, exist_ok=True)
+
+output_basepath = os.path.join(clustering_dir, os.path.basename(csv_path_to_metrics).replace(".csv", "_with_clusters.csv"))
 df = pd.read_csv(csv_path_to_metrics)
 
 target_habitat = HABITAT_TARGETS[0]
+short_basepath = os.path.join(clustering_dir, f"hab{target_habitat}")
 # Initialize cluster column
 df[f"cluster_{target_habitat}"] = -1
 
@@ -69,7 +71,6 @@ def perform_clustering_target_habitat(
     # -----------------------------
     # Find optimal number of clusters
     # -----------------------------
-    inertia = []
     silhouette_scores = []
 
     K_range = range(2, max_possible_k + 1)
@@ -77,33 +78,25 @@ def perform_clustering_target_habitat(
     for k in K_range:
         kmeans = KMeans(n_clusters=k, random_state=0, n_init='auto')
         kmeans.fit(X_scaled)
-        inertia.append(kmeans.inertia_)
         if k == 1:
             silhouette_scores.append(0)
         else:
             silhouette_scores.append(silhouette_score(X_scaled, kmeans.labels_))
 
     # -----------------------------
-    # Plot elbow + silhouette
+    # Plot silhouette
     # -----------------------------
-    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-    ax[0].plot(K_range, inertia, marker='o')
-    ax[0].set_title("Elbow Method")
-    ax[0].set_xlabel("Number of clusters")
-    ax[0].set_ylabel("Inertia")
-    ax[1].plot(K_range, silhouette_scores, marker='o', color='orange')
-    ax[1].set_title("Silhouette Score")
-    ax[1].set_xlabel("Number of clusters")
-    ax[1].set_ylabel("Score")
+    plt.figure(figsize=(6, 5))
+    plt.plot(K_range, silhouette_scores, marker='o', color='orange')
+    plt.title("Silhouette Score")
+    plt.xlabel("Number of clusters")
+    plt.ylabel("Score")
     plt.tight_layout()
 
-    elbow_path = output_basepath.replace(
-        ".csv",
-        f"_hab{target_habitat}_elbow_silhouette.png"
-    )
-    plt.savefig(elbow_path, dpi=600)
+    silhouette_path = os.path.join(os.path.dirname(short_basepath), f"hab{target_habitat}_silhouette.png")
+    plt.savefig(silhouette_path, dpi=600)
     plt.close()
-    print(f"📈 Elbow/Silhouette plot saved: {elbow_path}")
+    print(f"📈 Silhouette plot saved: {silhouette_path}")
 
     # -----------------------------
     # Select best cluster number
@@ -122,17 +115,16 @@ def perform_clustering_target_habitat(
     # -----------------------------
     # Cluster statistics
     # -----------------------------
+    """ 
     cluster_stats = pd.DataFrame(X, columns=metrics)
     cluster_stats["cluster"] = labels
     cluster_agg = cluster_stats.groupby("cluster").agg(['mean', 'median']).round(3)
     cluster_agg.columns = [f"{metric}_{stat}" for metric, stat in cluster_agg.columns]
 
-    stats_path = output_basepath.replace(
-        ".csv",
-        f"_hab{target_habitat}_cluster_stats.csv"
-    )
+    stats_path = os.path.join(os.path.dirname(short_basepath), f"hab{target_habitat}_cluster_stats.csv")
     cluster_agg.to_csv(stats_path)
     print(f"📊 Cluster stats saved: {stats_path}")
+    """
 
     # -----------------------------
     # PCA projection
@@ -140,10 +132,7 @@ def perform_clustering_target_habitat(
     pca = PCA(n_components=2)
     components = pca.fit_transform(X_scaled)
     loadings = pd.DataFrame(pca.components_.T, columns=["PC1", "PC2"], index=metrics)
-    loadings_path = output_basepath.replace(
-        ".csv",
-        f"_hab{target_habitat}_PCA_loadings.csv"
-    )
+    loadings_path = os.path.join(os.path.dirname(short_basepath), f"hab{target_habitat}_PCA_loadings.csv")
     loadings.to_csv(loadings_path)
     print(f"📂 PCA loadings saved: {loadings_path}")
 
@@ -166,10 +155,7 @@ def perform_clustering_target_habitat(
     plt.ylabel("PC2")
     plt.legend()
     plt.grid(True)
-    clusterplot_path = output_basepath.replace(
-        ".csv",
-        f"_hab{target_habitat}_PCA_clusters.png"
-    )
+    clusterplot_path = os.path.join(os.path.dirname(short_basepath), f"hab{target_habitat}_PCA_clusters.png")
     plt.savefig(clusterplot_path, dpi=600)
     plt.close()
     print(f"🖼️ PCA cluster plot saved: {clusterplot_path}")
@@ -190,7 +176,7 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     results_df = pd.read_csv(csv_file)   # Load results
 
     # ==========================================================
-    # 🔥 NEW: keep only columns that are NOT already in shapefile
+    # Keep only columns that are NOT already in shapefile
     # ==========================================================
     cols_to_add = [
         col for col in results_df.columns
@@ -209,35 +195,42 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     # -----------------------------
     # Rename columns to respect shapefile 10-char limit
     # -----------------------------
-    COLUMN_RENAME_MAP = {
-        "hab3_shift_all_daily": "h3_sh_all",
-        "hab3_shift_targ_daily": "h3_sh_suit", 
-        "hab3_shift_dry_daily": "h3_sh_dry",
-        "hab3_DryMax": "h3_drymax",
-        "hab3_DesicRisk": "h3_desic",
-        "hab3_DriftPerc": "h3_driftP",
-        "hab3_DriftMax": "h3_driftM",
-        "hab3_dur_drift_1": "h3_dd_1",
-        "hab3_dur_drift_2": "h3_dd_2",
-        "hab3_dur_drift_3": "h3_dd_3",
-        "hab3_dur_drift_4": "h3_dd_4",
-        "prob_hab_-1": "h3_prob_-1",
-        "hab3_first_occurrence_time": "hab3_first",
-
-        "hab2_shift_all_daily": "h2_sh_all",
-        "hab2_shift_targ_daily": "h2_sh_suit",
-        "hab2_shift_dry_daily": "h2_sh_dry",
-        "hab2_DryMax": "h2_drymax",
-        "hab2_DesicRisk": "h2_desic",
-        "hab2_DriftPerc": "h2_driftP",
-        "hab2_DriftMax": "h2_driftM",
-        "hab2_dur_drift_1": "h2_dd_1",
-        "hab2_dur_drift_2": "h2_dd_2",
-        "hab2_dur_drift_3": "h2_dd_3",
-        "hab2_dur_drift_4": "h2_dd_4",
-        "prob_hab_-1": "h2_prob_-1",
-        "hab2_first_occurrence_time": "hab2_first"
-    }
+    COLUMN_RENAME_MAP = {}
+    for h in range(10):  # habitat types 0 to 9
+        COLUMN_RENAME_MAP.update({
+            f"hab{h}_shift_all_daily":        f"h{h}_sh_all",
+            f"hab{h}_shift_targ_daily":       f"h{h}_sh_suit",
+            f"hab{h}_shift_dry_daily":        f"h{h}_sh_dry",
+            f"hab{h}_DryMax":                 f"h{h}_dryMax",
+            f"hab{h}_DesicRisk":              f"h{h}_desicR",
+            f"hab{h}_DriftPerc":              f"h{h}_driftP",
+            f"hab{h}_DriftMax":               f"h{h}_driftM",
+            f"hab{h}_dur_drift_1":            f"h{h}_dd_1",
+            f"hab{h}_dur_drift_2":            f"h{h}_dd_2",
+            f"hab{h}_dur_drift_3":            f"h{h}_dd_3",
+            f"hab{h}_dur_drift_4":            f"h{h}_dd_4",
+            "prob_hab_-1":                    f"h{h}_prob_-1",
+            f"hab{h}_first_occurrence_time":  f"h{h}_first",
+            f"hab{h}_window_count":           f"h{h}_nb_seq",
+            f"hab{h}_max_cumul_h":            f"h{h}_dur_max",
+            f"hab{h}_median_h":               f"h{h}_dur_med",
+            f"hab{h}_q1_h":                   f"h{h}_dur_q1",
+            f"hab{h}_q3_h":                   f"h{h}_dur_q3",
+            f"hab{h}_dry_window_count":       f"h{h}_dry_seq",
+            f"hab{h}_dry_max_cumul_h":        f"h{h}_dry_max",
+            f"hab{h}_dry_median_h":           f"h{h}_dry_med",
+            f"hab{h}_dry_q1_h":               f"h{h}_dry_q1",
+            f"hab{h}_dry_q3_h":               f"h{h}_dry_q3",
+            f"hab{h}_desicRisk_median":       f"h{h}_dryMedR",
+            f"hab{h}_desicRisk_q1":           f"h{h}_dry_q1R",
+            f"hab{h}_desicRisk_q3":           f"h{h}_dry_q3R",
+        })
+    # Fields not habitat-specific
+    COLUMN_RENAME_MAP.update({
+        "desicRisk_median": "desicMedR",
+        "desicRisk_q1":     "desic_q1R",
+        "desicRisk_q3":     "desic_q3R",
+    })
 
     # Apply only existing columns
     rename_existing = {
@@ -250,7 +243,7 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     )
 
     # -----------------------------
-    # 🔥 FINAL SAFETY: remove duplicate column names
+    # FINAL SAFETY: remove duplicate column names
     # -----------------------------
     mesh_with_results = mesh_with_results.loc[:, ~mesh_with_results.columns.duplicated()]
 
@@ -274,6 +267,6 @@ print("✅ Clustering finished")
 join_mesh_with_CSV_data(
     mesh_file=shp_path_to_metrics,
     csv_file=output_basepath,
-    output_shp_file=shp_path_to_metrics.replace(".shp", "_with_clusters.shp"),
+    output_shp_file=os.path.join(clustering_dir, os.path.basename(shp_path_to_metrics).replace(".shp", "_with_clusters.shp")),
     id_col=SHP_ID_COLNAME
 )
