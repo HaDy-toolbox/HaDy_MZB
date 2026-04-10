@@ -205,35 +205,42 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     results_df = pd.read_csv(csv_file) # Load results
     mesh_with_results = mesh_gdf.merge(results_df, on=id_col, how="left") # Merge on the specified ID column
 
-    COLUMN_RENAME_MAP = { # Rename columns to respect shapefile 10-char limit
-        "hab3_shift_all_daily": "h3_sh_all",
-        "hab3_shift_targ_daily": "h3_sh_suit", 
-        "hab3_shift_dry_daily": "h3_sh_dry",
-        "hab3_DryMax": "h3_drymax",
-        "hab3_DesicRisk": "h3_desic",
-        "hab3_DriftPerc": "h3_driftP",
-        "hab3_DriftMax": "h3_driftM",
-        "hab3_dur_drift_1": "h3_dd_1",
-        "hab3_dur_drift_2": "h3_dd_2",
-        "hab3_dur_drift_3": "h3_dd_3",
-        "hab3_dur_drift_4": "h3_dd_4",
-        "prob_hab_-1": "h3_prob_-1",
-        "hab3_first_occurrence_time": "hab3_first",
-
-        "hab2_shift_all_daily": "h2_sh_all",
-        "hab2_shift_targ_daily": "h2_sh_suit",
-        "hab2_shift_dry_daily": "h2_sh_dry",
-        "hab2_DryMax": "h2_drymax",
-        "hab2_DesicRisk": "h2_desic",
-        "hab2_DriftPerc": "h2_driftP",
-        "hab2_DriftMax": "h2_driftM",
-        "hab2_dur_drift_1": "h2_dd_1",
-        "hab2_dur_drift_2": "h2_dd_2",
-        "hab2_dur_drift_3": "h2_dd_3",
-        "hab2_dur_drift_4": "h2_dd_4",
-        "prob_hab_-1": "h2_prob_-1",
-        "hab2_first_occurrence_time": "hab2_first"
-    }
+    COLUMN_RENAME_MAP = {}
+    for h in range(10):  # habitat types 0 to 9
+        COLUMN_RENAME_MAP.update({
+            f"hab{h}_shift_all_daily":        f"h{h}_sh_all",
+            f"hab{h}_shift_targ_daily":       f"h{h}_sh_suit",
+            f"hab{h}_shift_dry_daily":        f"h{h}_sh_dry",
+            f"hab{h}_DryMax":                 f"h{h}_dryMax",
+            f"hab{h}_DesicRisk":              f"h{h}_desicR",
+            f"hab{h}_DriftPerc":              f"h{h}_driftP",
+            f"hab{h}_DriftMax":               f"h{h}_driftM",
+            f"hab{h}_dur_drift_1":            f"h{h}_dd_1",
+            f"hab{h}_dur_drift_2":            f"h{h}_dd_2",
+            f"hab{h}_dur_drift_3":            f"h{h}_dd_3",
+            f"hab{h}_dur_drift_4":            f"h{h}_dd_4",
+            "prob_hab_-1":                    f"h{h}_prob_-1",
+            f"hab{h}_first_occurrence_time":  f"h{h}_first",
+            f"hab{h}_window_count":           f"h{h}_nb_seq",
+            f"hab{h}_max_cumul_h":            f"h{h}_dur_max",
+            f"hab{h}_median_h":               f"h{h}_dur_med",
+            f"hab{h}_q1_h":                   f"h{h}_dur_q1",
+            f"hab{h}_q3_h":                   f"h{h}_dur_q3",
+            f"hab{h}_dry_window_count":       f"h{h}_dry_seq",
+            f"hab{h}_dry_max_cumul_h":        f"h{h}_dry_max",
+            f"hab{h}_dry_median_h":           f"h{h}_dry_med",
+            f"hab{h}_dry_q1_h":               f"h{h}_dry_q1",
+            f"hab{h}_dry_q3_h":               f"h{h}_dry_q3",
+            f"hab{h}_desicRisk_median":       f"h{h}_dryMedR",
+            f"hab{h}_desicRisk_q1":           f"h{h}_dry_q1R",
+            f"hab{h}_desicRisk_q3":           f"h{h}_dry_q3R",
+        })
+    # Fields not habitat-specific
+    COLUMN_RENAME_MAP.update({
+        "desicRisk_median": "desicMedR",
+        "desicRisk_q1":     "desic_q1R",
+        "desicRisk_q3":     "desic_q3R",
+    })
 
     # Apply only existing columns
     rename_existing = {
