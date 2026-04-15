@@ -5,7 +5,7 @@ from itertools import groupby
 
 from variables_from_config import TIME_STEP_MIN
 from variables_from_config import TIMESTEPS_PER_DAY
-from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME 
+from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_SURF_COLNAME 
 from variables_from_config import METRICS_TO_COMPUTE
 from variables_from_config import SUITABLE_HAB_SHIFTS
 from variables_from_config import UP_RAMP, DRIFT_THRESHOLDS_WITH_RAMP
@@ -21,6 +21,7 @@ def format_col(prefix, discharge):
     else:
         q_str = str(discharge).replace('.', '_')   # ← just add this replace
     return f"{prefix}_{q_str}"
+
 
 def max_run_length(seq, valid_vals):
     """Computes the longest continuous sequence of valid values."""
@@ -132,9 +133,9 @@ def compute_drift_risk(vel_seq, depth_seq, drift_thresholds):
         elif vel <= drift_thresholds["drift_1"]:
             drift.append(1)
         elif drift_thresholds["drift_1"] < vel < drift_thresholds["drift_2"]:
-            drift.append(2)  
+            drift.append(2) 
         elif drift_thresholds["drift_2"] <= vel <= drift_thresholds["drift_3"]:
-            drift.append(3)  
+            drift.append(3)
         elif vel > drift_thresholds["drift_3"]:
             drift.append(4)
         else:
@@ -160,11 +161,9 @@ def compute_drift_risk_with_up_ramping(vel_seq, depth_seq, drift_thresholds, ram
         elif vel <= drift_thresholds["drift_1"]:
             drift.append(1)
         elif drift_thresholds["drift_1"] < vel < drift_thresholds["drift_2"]:
-            drift.append(20)  # drift class 2 (type 0)
-            # drift.append(2)  # drift class 2 (type 0)
+            drift.append(20)
         elif drift_thresholds["drift_2"] <= vel <= drift_thresholds["drift_3"]:
-            drift.append(21 if ramp_rate_cm_min <= drift_thresholds["drift_ramp_threshold_2"] else 3)
-            # drift.append(3)  # drift class 2 (type 0)
+            drift.append(21 if ramp_rate_cm_min <= drift_thresholds["drift_ramp_threshold"] else 3)
         elif vel > drift_thresholds["drift_3"]:
             drift.append(4)
         else:
@@ -182,17 +181,17 @@ def compute_drift_percentile_class(drift_series, percentile=90):
 
 def compute_habitat_durations(hab_seq):
     """Computes durations for each habitat and returns both counts and total duration."""
-    durations = {f"dur_hab_{h}": hab_seq.count(h) for h in range(0, 7)}
+    durations = {f"dur_h_{h}": hab_seq.count(h) for h in range(0, 7)}
     total_duration = len(hab_seq)
     return durations, total_duration
 
 def compute_habitat_probabilities(durations, total_duration):
     """Computes probabilities from durations."""
     if total_duration == 0:
-        return {f"prob_hab_{h}": np.nan for h in range(0, 7)}
-    return {f"prob_hab_{h}": durations[f"dur_hab_{h}"] / total_duration for h in range(0, 7)}
+        return {f"prob_h_{h}": np.nan for h in range(0, 7)}
+    return {f"prob_h_{h}": durations[f"dur_h_{h}"] / total_duration for h in range(0, 7)}
 
-def get_most_probable_habitat(row, prob_prefix='prob_hab_'):
+def get_most_probable_habitat(row, prob_prefix='prob_h_'):
     """Returns the habitat with the highest probability."""
     habitat_probs = {int(col.replace(prob_prefix, '')): row[col]
                      for col in row.index if col.startswith(prob_prefix) and pd.notna(row[col])}
@@ -215,17 +214,17 @@ def compute_habitat_metrics(
     # SHIFTS
     # -------------------------
     if metrics_to_compute.get("shift_all_daily", False):
-        results["shift_all_daily"] = compute_daily_shifts(
+        results["sh_all"] = compute_daily_shifts(
             hab_seq, TIMESTEPS_PER_DAY
         )
 
     if metrics_to_compute.get("shift_targ_daily", False):
-        results["shift_targ_daily"] = count_within_group_shifts(
+        results["sh_suit"] = count_within_group_shifts(
             hab_seq, SUITABLE_HAB_SHIFTS, TIMESTEPS_PER_DAY
         )
 
     if metrics_to_compute.get("shift_dry_daily", False):
-        results["shift_dry_daily"] = count_shifts_daily(
+        results["sh_dry"] = count_shifts_daily(
             hab_seq, [0], TIMESTEPS_PER_DAY
         )
 
@@ -238,10 +237,10 @@ def compute_habitat_metrics(
         max_dry = max_dry_duration(hab_seq)
 
         if metrics_to_compute.get("dry_max", False):
-            results["DryMax"] = max_dry
+            results["dryMax"] = max_dry
 
         if metrics_to_compute.get("desiccation_risk", False):
-            results["DesicRisk"] = get_desiccation_risk(
+            results["desicR"] = get_desiccation_risk(
                 max_dry,
                 desiccation_thresholds
             )
@@ -259,14 +258,14 @@ def compute_habitat_metrics(
                 vel_seq,
                 dep_seq,
                 DRIFT_THRESHOLDS_WITH_RAMP,
-                ramp_rate_cm_min=DRIFT_THRESHOLDS_WITH_RAMP["drift_ramp_threshold_2"]
+                ramp_rate_cm_min=DRIFT_THRESHOLDS_WITH_RAMP["drift_ramp_threshold"]
             )
             if metrics_to_compute.get("drift_durations", False):
                 # Map drift 20 or 21 to class 2
                 mapped_drift_series = [2 if d in (20, 21) else d for d in drift_series]
 
                 drift_durations = {
-                    f"dur_drift_{d}": mapped_drift_series.count(d)
+                    f"dd_{d}": mapped_drift_series.count(d)
                     for d in [1, 2, 3, 4]
                 }
                 results.update(drift_durations)
@@ -280,19 +279,21 @@ def compute_habitat_metrics(
 
             if metrics_to_compute.get("drift_durations", False):
                 drift_durations = {
-                    f"dur_drift_{d}": drift_series.count(d)
+                    f"dd_{d}": drift_series.count(d)
                     for d in [1, 2, 3, 4]
                 }
                 results.update(drift_durations)
 
         if metrics_to_compute.get("drift_percentile", False):
-            results["DriftPerc"] = compute_drift_percentile_class(
+            results["driftP"] = compute_drift_percentile_class(
                 drift_series
             )
 
         if metrics_to_compute.get("drift_max", False):
-            mapped = [2 if d in (20, 21) else d for d in drift_series if not np.isnan(d)]
-            results["DriftMax"] = max(mapped, default=np.nan)
+            results["driftM"] = max(
+                [d for d in drift_series if not np.isnan(d)],
+                default=np.nan
+            )
 
     return results
 
@@ -304,7 +305,8 @@ def compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresh
         #"Mesh_ID": row["Mesh_ID"],
         "id": row[SHP_ID_COLNAME],
         "x": row[SHP_X_COLNAME],
-        "y": row[SHP_Y_COLNAME]
+        "y": row[SHP_Y_COLNAME],
+        "surface": row[SHP_SURF_COLNAME]
         # Here add more of the information you would like to appear on the different rows (e.g., the std_dev). Add a "," on the previous line
     }
 
@@ -325,18 +327,18 @@ def compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresh
     # For each habitat target selected by the user
     for hab in target_habitat:
         if hab in habitat_seq:
-            metrics = compute_habitat_metrics(habitat_seq, velocity_seq, depth_seq, drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE) #, DRIFT_THRESHOLDS_3)
-            prefix = f"hab{hab}_" #ajoute ce prefixe poure toutes les colonnes du csv où les valeurs des metrics sont stockées
+            metrics = compute_habitat_metrics(habitat_seq, velocity_seq, depth_seq, drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE)
+            prefix = f"h{hab}_" #ajoute ce prefixe poure toutes les colonnes du csv où les valeurs des metrics sont stockées
             results.update({prefix + k: v for k, v in metrics.items()})
         else:
-            prefix = f"hab{hab}_"
+            prefix = f"h{hab}_"
             # Build empty metric structure using config
             empty_metrics = compute_habitat_metrics([], [], [], drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE)
             results.update({prefix + k: np.nan for k in empty_metrics.keys()})
 
     return results
 
-def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccation_thresholds, target_habitat):
+def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccation_thresholds, target_habitat, start_at_first_occurrence):
     flow_data = pd.read_csv(flow_csv)
     mesh_data = pd.read_csv(mesh_csv)
     discharge_values = flow_data["Corresponding_known_discharge"].values #this gives an array (line) with all the sequence of discharge values. Length = time of timesteps, order = temporal sequence
@@ -353,8 +355,7 @@ def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccat
 
     # computing the metrics for each mesh cell (a row)
     results_process_mesh_data = [
-        # compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat)
-        compute_mesh_metrics_for_row_boolean(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat)
+        compute_mesh_metrics_for_row_boolean(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat, start_at_first_occurrence)
         for _, row in mesh_data.iterrows()
     ]
 
@@ -371,8 +372,18 @@ def compute_mesh_metrics_for_row_boolean(
     dep_cols,
     drift_thresholds,
     desiccation_thresholds,
-    target_habitat
+    target_habitat,
+    start_at_first_occurrence
 ):
+    """
+    Compute metrics for one mesh element.
+
+    Parameters
+    ----------
+    start_at_first_occurrence : bool
+        If True, metrics are computed only from the first timestep
+        where the target habitat appears.
+    """
 
     results = {
         "id": row[SHP_ID_COLNAME],
@@ -400,7 +411,7 @@ def compute_mesh_metrics_for_row_boolean(
     # ---------------------------------------
     for hab in target_habitat:
 
-        prefix = f"hab{hab}_"
+        prefix = f"h{hab}_"
 
         if hab in habitat_seq:
 
@@ -408,8 +419,29 @@ def compute_mesh_metrics_for_row_boolean(
             first_idx = next(i for i, v in enumerate(habitat_seq) if v == hab)
 
             # Save timestep index
-            results[prefix + "first_occurrence_time"] = first_idx
+            results[prefix + "first"] = first_idx #"first_occurrence_time"
 
+            """
+            # 2️⃣ Slice if requested
+            if start_at_first_occurrence:
+                habitat_seq_used = habitat_seq[first_idx:]
+                velocity_seq_used = velocity_seq[first_idx:]
+                depth_seq_used = depth_seq[first_idx:]
+            else:
+                habitat_seq_used = habitat_seq
+                velocity_seq_used = velocity_seq
+                depth_seq_used = depth_seq
+
+            # 3️⃣ Compute metrics
+            metrics = compute_habitat_metrics(
+                habitat_seq_used,
+                velocity_seq_used,
+                depth_seq_used,
+                drift_thresholds,
+                desiccation_thresholds,
+                METRICS_TO_COMPUTE
+            )
+            """
             # --------------------------------------------------
             # 1️⃣ Compute ALL metrics on full sequence
             # --------------------------------------------------
@@ -424,11 +456,31 @@ def compute_mesh_metrics_for_row_boolean(
 
             metrics = metrics_full.copy()
 
+            # --------------------------------------------------
+            # 2️⃣ If requested → recompute ONLY desiccation
+            #     from first occurrence onward
+            # --------------------------------------------------
+            if start_at_first_occurrence:
+
+                habitat_seq_sliced = habitat_seq[first_idx:]
+
+                # recompute dry max on sliced sequence
+                max_dry = max_dry_duration(habitat_seq_sliced)
+
+                if METRICS_TO_COMPUTE.get("dry_max", False):
+                    metrics["DryMax"] = max_dry
+
+                if METRICS_TO_COMPUTE.get("desiccation_risk", False):
+                    metrics["desicR"] = get_desiccation_risk(
+                        max_dry,
+                        desiccation_thresholds
+                    )
+
             results.update({prefix + k: v for k, v in metrics.items()})
 
         else:
             # Habitat never occurs
-            results[prefix + "first_occurrence_time"] = np.nan
+            results[prefix + "first"] = np.nan
 
             # Build empty metric structure using config
             empty_metrics = compute_habitat_metrics([], [], [], drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE)

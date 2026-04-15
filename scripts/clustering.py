@@ -21,9 +21,8 @@ df = pd.read_csv(csv_path_to_metrics)
 
 target_habitat = HABITAT_TARGETS[0]
 short_basepath = os.path.join(clustering_dir, f"hab{target_habitat}")
-# Initialize cluster column
-df[f"cluster_{target_habitat}"] = -1
 
+df[f"cluster_{target_habitat}"] = -1 # Initialize cluster column
 
 def perform_clustering_target_habitat(
         df,
@@ -175,9 +174,7 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     mesh_gdf = gpd.read_file(mesh_file)  # Load base mesh geometry
     results_df = pd.read_csv(csv_file)   # Load results
 
-    # ==========================================================
     # Keep only columns that are NOT already in shapefile
-    # ==========================================================
     cols_to_add = [
         col for col in results_df.columns
         if col not in mesh_gdf.columns or col == id_col
@@ -187,70 +184,11 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
 
     print(f"Columns added to shapefile: {[c for c in cols_to_add if c != id_col]}")
 
-    # -----------------------------
-    # Merge on the specified ID column
-    # -----------------------------
-    mesh_with_results = mesh_gdf.merge(results_df, on=id_col, how="left")
+    mesh_with_results = mesh_gdf.merge(results_df, on=id_col, how="left") # Merge on the specified ID column
 
-    # -----------------------------
-    # Rename columns to respect shapefile 10-char limit
-    # -----------------------------
-    COLUMN_RENAME_MAP = {}
-    for h in range(10):  # habitat types 0 to 9
-        COLUMN_RENAME_MAP.update({
-            f"hab{h}_shift_all_daily":        f"h{h}_sh_all",
-            f"hab{h}_shift_targ_daily":       f"h{h}_sh_suit",
-            f"hab{h}_shift_dry_daily":        f"h{h}_sh_dry",
-            f"hab{h}_DryMax":                 f"h{h}_dryMax",
-            f"hab{h}_DesicRisk":              f"h{h}_desicR",
-            f"hab{h}_DriftPerc":              f"h{h}_driftP",
-            f"hab{h}_DriftMax":               f"h{h}_driftM",
-            f"hab{h}_dur_drift_1":            f"h{h}_dd_1",
-            f"hab{h}_dur_drift_2":            f"h{h}_dd_2",
-            f"hab{h}_dur_drift_3":            f"h{h}_dd_3",
-            f"hab{h}_dur_drift_4":            f"h{h}_dd_4",
-            "prob_hab_-1":                    f"h{h}_prob_-1",
-            f"hab{h}_first_occurrence_time":  f"h{h}_first",
-            f"hab{h}_nb_seq":                 f"h{h}_nb_seq",
-            f"hab{h}_max_cumul_dur":          f"h{h}_dur_max",
-            f"hab{h}_median_dur":             f"h{h}_dur_med",
-            f"hab{h}_dur_q1":                 f"h{h}_dur_q1",
-            f"hab{h}_dur_q3":                 f"h{h}_dur_q3",
-            f"hab{h}_dry_nb_seq":             f"h{h}_dry_seq",
-            f"hab{h}_dry_max_cumul_dur":      f"h{h}_dry_max",
-            f"hab{h}_dry_median_dur":         f"h{h}_dry_med",
-            f"hab{h}_dry_q1_dur":             f"h{h}_dry_q1",
-            f"hab{h}_dry_q3_dur":             f"h{h}_dry_q3",
-            f"hab{h}_desicRisk_median":       f"h{h}_dryMedR",
-            f"hab{h}_desicRisk_q1":           f"h{h}_dry_q1R",
-            f"hab{h}_desicRisk_q3":           f"h{h}_dry_q3R",
-        })
-    # Fields not habitat-specific
-    COLUMN_RENAME_MAP.update({
-        "desicRisk_median": "desicMedR",
-        "desicRisk_q1":     "desic_q1R",
-        "desicRisk_q3":     "desic_q3R",
-    })
+    mesh_with_results = mesh_with_results.loc[:, ~mesh_with_results.columns.duplicated()] # FINAL SAFETY: remove duplicate column names
 
-    # Apply only existing columns
-    rename_existing = {
-        old: new
-        for old, new in COLUMN_RENAME_MAP.items()
-        if old in mesh_with_results.columns
-    }
-    mesh_with_results = mesh_with_results.rename(
-        columns={k: v for k, v in COLUMN_RENAME_MAP.items() if k in mesh_with_results.columns}
-    )
-
-    # -----------------------------
-    # FINAL SAFETY: remove duplicate column names
-    # -----------------------------
-    mesh_with_results = mesh_with_results.loc[:, ~mesh_with_results.columns.duplicated()]
-
-    # -----------------------------
-    # Save shapefile
-    # -----------------------------
-    mesh_with_results.to_file(output_shp_file)
+    mesh_with_results.to_file(output_shp_file) #save shapefile 
 
     print(f"✅ Merged shapefile saved to {output_shp_file}")
 

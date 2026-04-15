@@ -34,7 +34,9 @@ def match_closest_discharge(discharge_values, typical_flow_time_series_path, out
 
     return output_csv
 
-
+# ==================================================================
+# ========== Flow time-series discharge values to study ============
+# ==================================================================
 def get_study_discharges(discharge_csv_path):
     """
     Extract distinct discharge values from 'Corresponding_known_discharge' column.

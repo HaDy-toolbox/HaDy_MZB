@@ -8,19 +8,14 @@ import os
 import matplotlib.ticker as mtick
 import matplotlib.colors as mcolors
 
-
-from variables_from_config import HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH
-
+from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
 
 csv_path = FINAL_CSV_PATH
 csv_path_static = STATIC_HABITAT_CSV_PATH
 
-# csv_path = r"C:\Users\lecrivau\Documents\00_Research_Assistant\Toolbox\QGIS_to_share\Metrics_small_zone\Summer_2019\metrics.csv"
-# csv_path_static = r"C:\Users\lecrivau\source\repos\HaDy_MZB\data\output\Small_zone\Summer_2019_small_scale\Desiccation_files\mesh_habitat_egg_bancs_gravier.csv" 
-
-habitat_labels_dict = {
+habitat_labels_dict_FOCUS_ZONE_FALSE = {
     0: "Dry",
     1: "Stagnant",
     2: "Slow",
@@ -30,6 +25,11 @@ habitat_labels_dict = {
     6: "Violent"
 }
 
+habitat_labels_dict_FOCUS_ZONE_TRUE = {
+    0: "Dry",
+    1: "Too fast /\nToo deep ",
+    2: "Suitable"
+}
 
 habitat_colors_dict = {
     0: "#fde725",
@@ -42,20 +42,20 @@ habitat_colors_dict = {
 }
 
 # SUPPORT FUNCTIONS -------------------------------------------------------------------------------------------------------------------------------------------------
+# ==========================================================
+# FUNCTION: Extract intensity column (vectorized, fast)
+# ==========================================================
 def get_text_color(bg_color):
     r, g, b = mcolors.to_rgb(bg_color)
     luminance = 0.299*r + 0.587*g + 0.114*b
     return 'white' if luminance < 0.5 else 'black'
 
-# ==========================================================
-# FUNCTION: Extract intensity column (vectorized, fast)
-# ==========================================================
 def build_intensity_column(df, habitat_col):
     """
     For each row, extracts the probability from column prob_hab_X
     where X = mostProb value.
     """
-    prob_cols = [c for c in df.columns if c.startswith("prob_hab_")]
+    prob_cols = [c for c in df.columns if c.startswith("prob_h_")]
 
     # Create empty intensity column
     intensity = pd.Series(index=df.index, dtype=float)
@@ -100,7 +100,7 @@ def filter_meshes_with_target_habitat(df, habitat_target):
     Keep only meshes that experience the target habitat
     at least once during the time series.
     """
-    target_column = f"prob_hab_{habitat_target}"
+    target_column = f"prob_h_{habitat_target}"
 
     if target_column not in df.columns:
         raise ValueError(f"Column {target_column} not found in dataframe.")
@@ -114,8 +114,10 @@ def filter_meshes_with_target_habitat(df, habitat_target):
 def plot_most_prob_intensity(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -126,8 +128,12 @@ def plot_most_prob_intensity(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
         
     habitat_labels = {k: habitat_labels_dict[k] for k in habitat_range}
 
@@ -154,7 +160,7 @@ def plot_most_prob_intensity(
     # Colors (editable)
     colors_dict = habitat_colors_dict
     palette = {habitat_labels[i]: colors_dict[i] for i in habitat_range}
-
+    
     # -----------------------------
     # Kruskal–Wallis
     # -----------------------------
@@ -230,8 +236,10 @@ def plot_most_prob_intensity(
 def plot_most_prob_intensity_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -243,8 +251,12 @@ def plot_most_prob_intensity_target_hab(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
         
     habitat_labels = {k: habitat_labels_dict[k] for k in habitat_range}
 
@@ -256,7 +268,7 @@ def plot_most_prob_intensity_target_hab(
     # -----------------------------
     # Filtering
     # -----------------------------
-    focus_column = f"prob_hab_{habitat_in_focus}"
+    focus_column = f"prob_h_{habitat_in_focus}"
 
     df = df[df[focus_column] > 0]
     df = df[df[habitat_col].isin(habitat_range)]
@@ -349,8 +361,10 @@ def plot_most_prob_intensity_target_hab(
 def plot_most_prob_percentages(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -361,8 +375,12 @@ def plot_most_prob_percentages(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # Filter to selected habitat range
     df = df[df[habitat_col].isin(habitat_range)]
@@ -412,8 +430,10 @@ def plot_most_prob_percentages(
 def plot_most_prob_percentages_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -425,13 +445,17 @@ def plot_most_prob_percentages_target_hab(
     # -----------------------------
     # Habitat range definition
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # -----------------------------
     # Filtering
     # -----------------------------
-    focus_column = f"prob_hab_{habitat_in_focus}"
+    focus_column = f"prob_h_{habitat_in_focus}"
 
     df = df[df[focus_column] > 0]
     df = df[df[habitat_col].isin(habitat_range)]
@@ -481,8 +505,10 @@ def plot_most_prob_percentages_target_hab(
 def plot_most_prob_horizontal(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -493,8 +519,12 @@ def plot_most_prob_horizontal(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     df = df[df[habitat_col].isin(habitat_range)]
 
@@ -552,8 +582,10 @@ def plot_most_prob_horizontal(
 def plot_most_prob_horizontal_target_hab(
     csv_path,
     habitat_col,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     habitat_in_focus,
     save_path
@@ -565,13 +597,17 @@ def plot_most_prob_horizontal_target_hab(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # -----------------------------
     # Filtering
     # -----------------------------
-    focus_column = f"prob_hab_{habitat_in_focus}"
+    focus_column = f"prob_h_{habitat_in_focus}"
 
     df = df[df[focus_column] > 0]
     df = df[df[habitat_col].isin(habitat_range)]
@@ -629,8 +665,10 @@ def plot_most_prob_horizontal_target_hab(
 # ==========================================================
 def plot_habitat_availability_per_discharge(
     csv_path,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     save_path
 ):
@@ -640,8 +678,12 @@ def plot_habitat_availability_per_discharge(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # -----------------------------
     # Extract habitat columns and discharges
@@ -696,7 +738,8 @@ def plot_habitat_availability_per_discharge(
                 plt.text(
                     i,
                     b + pv / 2,
-                    f"{pv:.1f}",
+                    # f"{pv:.1f}",
+                    f"{int(round(pv))}",
                     ha='center',
                     va='center',
                     fontsize=15,
@@ -745,8 +788,10 @@ def plot_habitat_availability_per_discharge(
 # ==========================================================
 def plot_habitat_availability_per_discharge_target_hab(
     csv_path,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     target_habitat,
     save_path
@@ -757,8 +802,12 @@ def plot_habitat_availability_per_discharge_target_hab(
     # -----------------------------
     # Habitat range and labels
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # -----------------------------
     # Extract habitat columns
@@ -823,7 +872,8 @@ def plot_habitat_availability_per_discharge_target_hab(
                 plt.text(
                     i,
                     b + pv / 2,
-                    f"{pv:.1f}",
+                    # f"{pv:.1f}",
+                    f"{int(round(pv))}",
                     ha='center',
                     va='center',
                     fontsize=15,
@@ -863,6 +913,269 @@ def plot_habitat_availability_per_discharge_target_hab(
     plt.savefig(save_path, dpi=600)
     plt.show()
 
+# ==========================================================
+# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN SURFACE - Habitat availability per discharge (stacked %)
+# ==========================================================
+def plot_habitat_availability_per_discharge_surface(
+    csv_path,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_colors_dict,
+    focus_on_zone,
+    number_of_habitats,
+    save_path
+):
+
+    df = pd.read_csv(csv_path)
+    # -----------------------------
+    # Habitat range and labels
+    # -----------------------------
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+
+    # -----------------------------
+    # Extract habitat columns
+    # -----------------------------
+    habitat_columns = [col for col in df.columns if col.startswith("Hab_")]
+
+    if len(habitat_columns) == 0:
+        raise ValueError("No habitat columns starting with 'Hab_' found.")
+
+    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+
+    # -----------------------------
+    # Exclude meshes that are -1 everywhere
+    # -----------------------------
+    valid_rows = ~(df[habitat_columns] == -1).all(axis=1)
+    df_valid = df.loc[valid_rows]
+
+    # Total surface of the simulated domain
+    total_surface = df_valid["surf_m2"].sum()
+
+    # -----------------------------
+    # Compute habitat surface
+    # -----------------------------
+    habitat_data = {
+        ht: [
+            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
+            for col in habitat_columns
+        ]
+        for ht in habitat_range
+    }
+
+    # -----------------------------
+    # Plot
+    # -----------------------------
+    plt.figure(figsize=(16, 8))
+
+    x = discharges
+    bottom = np.zeros(len(x))
+
+    for ht in habitat_range:
+
+        values = habitat_data[ht]
+        percent_values = [v / total_surface * 100 for v in values]
+
+        plt.bar(
+            range(len(x)),
+            percent_values,
+            bottom=bottom,
+            width=0.8,
+            label=habitat_labels_dict[ht],
+            color=habitat_colors_dict[ht]
+        )
+        # Add labels
+        for i, (pv, b) in enumerate(zip(percent_values, bottom)):
+            if pv > 1:  # avoid clutter for tiny values
+                text_color = get_text_color(habitat_colors_dict[ht])
+                plt.text(
+                    i,
+                    b + pv / 2,
+                    # f"{pv:.1f}",
+                    f"{int(round(pv))}",
+                    ha='center',
+                    va='center',
+                    fontsize=15,
+                    color=text_color
+                )
+        bottom += np.array(percent_values)
+
+    # -----------------------------
+    # Formatting
+    # -----------------------------
+    plt.xticks(
+        range(len(x)),
+        [f"{val:g}" for val in x],
+        rotation=90,
+        fontsize=16
+    )
+
+    plt.yticks(fontsize=16)
+
+    plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
+
+    plt.ylabel(
+        "Habitat availability\n[% of the simulated surface]",
+        fontsize=18,
+        labelpad=15
+    )
+
+    plt.title("Habitat availability per discharge", fontsize=20, pad=20)
+
+    plt.legend(
+        title="Habitat Type",
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left',
+        fontsize=14,
+        title_fontsize=16
+    )
+
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
+
+    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+
+    plt.tight_layout()
+
+    plt.savefig(save_path, dpi=600)
+
+    plt.show()
+
+# ==========================================================
+# FUNCTION: TARGET HABITAT - IN SURFACE - Habitat availability per discharge (stacked %)
+# ==========================================================
+def plot_habitat_availability_per_discharge_surface_target_hab(
+    csv_path,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
+    habitat_colors_dict,
+    focus_on_zone,
+    number_of_habitats,
+    target_habitat,
+    save_path
+):
+
+    df = pd.read_csv(csv_path)
+
+    # -----------------------------
+    # Habitat range and labels
+    # -----------------------------
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
+
+    # -----------------------------
+    # Extract habitat columns
+    # -----------------------------
+    habitat_columns = [col for col in df.columns if col.startswith("Hab_")]
+
+    if len(habitat_columns) == 0:
+        raise ValueError("No habitat columns starting with 'Hab_' found.")
+
+    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+
+    # -----------------------------
+    # Remove meshes that are -1 everywhere
+    # -----------------------------
+    valid_rows = ~(df[habitat_columns] == -1).all(axis=1)
+    df_valid = df.loc[valid_rows]
+
+    # -----------------------------
+    # Keep only meshes that experience target habitat
+    # -----------------------------
+    has_target = (df_valid[habitat_columns] == target_habitat).any(axis=1)
+    df_valid = df_valid.loc[has_target]
+
+    # Total surface of filtered patches
+    total_surface = df_valid["surf_m2"].sum()
+
+    # -----------------------------
+    # Compute habitat surface
+    # -----------------------------
+    habitat_data = {
+        ht: [
+            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
+            for col in habitat_columns
+        ]
+        for ht in habitat_range
+    }
+
+    # -----------------------------
+    # Plot
+    # -----------------------------
+    plt.figure(figsize=(16, 8))
+
+    x = discharges
+    bottom = np.zeros(len(x))
+
+    for ht in habitat_range:
+
+        values = habitat_data[ht]
+        percent_values = [v / total_surface * 100 for v in values]
+
+        bars = plt.bar(
+            range(len(x)),
+            percent_values,
+            bottom=bottom,
+            width=0.8,
+            label=habitat_labels_dict[ht],
+            color=habitat_colors_dict[ht]
+        )
+
+        # Add percentage labels
+        for i, (pv, b) in enumerate(zip(percent_values, bottom)):
+            if pv > 2:  # avoid clutter for tiny segments
+                text_color = get_text_color(habitat_colors_dict[ht])
+                plt.text(
+                    i,
+                    b + pv / 2,
+                    # f"{pv:.1f}",
+                    f"{int(round(pv))}",
+                    ha='center',
+                    va='center',
+                    fontsize=15,
+                    color=text_color
+                )
+
+        bottom += np.array(percent_values)
+
+    # -----------------------------
+    # Formatting
+    # -----------------------------
+    plt.xticks(
+        range(len(x)),
+        [f"{val:g}" for val in x],
+        rotation=90,
+        fontsize=16
+    )
+
+    plt.yticks(fontsize=16)
+    plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
+    plt.ylabel(
+        "Habitat availability\n[% of the surface of patches experiencing the target habitat\n during the flow time-series]",
+        fontsize=18,
+        labelpad=15
+    )
+    plt.title("Habitat availability per discharge", fontsize=20, pad=20)
+    plt.legend(
+        title="Habitat Type",
+        bbox_to_anchor=(1.05, 1),
+        loc='upper left',
+        fontsize=14,
+        title_fontsize=16
+    )
+
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
+    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=600)
+    plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Habitat probability for each habitat type
@@ -870,8 +1183,10 @@ def plot_habitat_availability_per_discharge_target_hab(
 # ==========================================================
 def plot_probability_distribution_target_hab(
     csv_path,
-    habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict,
+    focus_on_zone,
     number_of_habitats,
     target_habitat,
     save_path
@@ -881,18 +1196,22 @@ def plot_probability_distribution_target_hab(
     # -----------------------------
     # Habitat range
     # -----------------------------
-    habitat_range = list(range(0, number_of_habitats))
-    habitat_labels_dict = habitat_labels_dict
+    if focus_on_zone:
+        habitat_range = [0, 1, 2]
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_TRUE
+    else:
+        habitat_range = list(range(0, number_of_habitats))
+        habitat_labels_dict = habitat_labels_dict_FOCUS_ZONE_FALSE
 
     # -----------------------------
     # Probability columns
     # -----------------------------
-    prob_cols = [f"prob_hab_{i}" for i in habitat_range if f"prob_hab_{i}" in df.columns]
+    prob_cols = [f"prob_h_{i}" for i in habitat_range if f"prob_h_{i}" in df.columns]
 
     # -----------------------------
     # Filter patches experiencing target habitat
     # -----------------------------
-    target_col = f"prob_hab_{target_habitat}"
+    target_col = f"prob_h_{target_habitat}"
 
     if target_col not in df.columns:
         raise ValueError(f"{target_col} not found in dataset")
@@ -907,7 +1226,7 @@ def plot_probability_distribution_target_hab(
         value_name="probability"
     )
 
-    df_long["habitat"] = df_long["habitat"].str.replace("prob_hab_", "").astype(int)
+    df_long["habitat"] = df_long["habitat"].str.replace("prob_h_", "").astype(int)
 
     df_long["habitat_label"] = df_long["habitat"].map(habitat_labels_dict)
 
@@ -952,8 +1271,7 @@ def plot_probability_distribution_target_hab(
     plt.savefig(save_path, dpi=600)
     plt.show()
 
-
-def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE, save_dir):
+def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE, save_dir, FOCUS_ON_ZONE):
     """
     Plot percentage histograms for selected metrics of a target habitat.
 
@@ -972,7 +1290,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
     """
     
     df = pd.read_csv(csv_path)
-    filtered_df = df[df[f'prob_hab_{target_habitat}'] > 0]
+    filtered_df = df[df[f'prob_h_{target_habitat}'] > 0]
 
     # Colors for each metric
     colors = {
@@ -984,7 +1302,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
 
     # -------------------- Habitat Probability --------------------
     bin_edges = [0, 0.25, 0.50, 0.75, 1.0]
-    counts, _ = np.histogram(filtered_df[f'prob_hab_{target_habitat}'].dropna(), bins=bin_edges)
+    counts, _ = np.histogram(filtered_df[f'prob_h_{target_habitat}'].dropna(), bins=bin_edges)
     percentages = counts / counts.sum() * 100
 
     fig, ax = plt.subplots(figsize=(5, 4))
@@ -1005,10 +1323,10 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
     plt.show()
 
     # -------------------- Drift Risk --------------------
-    if METRICS_TO_COMPUTE.get("drift_max", False):
+    if METRICS_TO_COMPUTE.get("drift_percentile", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
         bin_centers = [1, 2, 3, 4]
-        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges)  
+        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges) 
         percentages = counts / counts.sum() * 100
 
         fig, ax = plt.subplots(figsize=(5, 4))
@@ -1027,10 +1345,10 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         plt.show()
 
 
-    # -------------------- Habitat Shifts --------------------
+    # -------------------- Habitat Shifts Daily--------------------
     if METRICS_TO_COMPUTE.get("shift_targ_daily", False):
         
-        shift_col = f'hab{target_habitat}_shift_targ_daily'
+        shift_col = f'h{target_habitat}_sh_suit'
         unique_vals = np.sort(filtered_df[shift_col].dropna().unique())
         
         if len(unique_vals) > 4:
@@ -1078,6 +1396,58 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         plt.savefig(f"{save_dir}/histogram_shifts{target_habitat}_percentage.png", dpi=600, transparent=True)
         plt.show()
 
+    # -------------------- Habitat Shifts Monthly--------------------
+    if METRICS_TO_COMPUTE.get("shift_targ_daily", False):
+        
+        shift_col = f'h{target_habitat}_sh_suit'
+        monthly_values = filtered_df[shift_col]*30
+        unique_vals = np.sort(monthly_values.dropna().unique())
+        
+        if len(unique_vals) > 4:
+            # More than 4 values → split into 4 equal integer bins from 0 to max+1
+            max_val = int(monthly_values.max())
+            bin_edges = np.linspace(0, max_val+1, 5, dtype=int)
+        else:
+            # 4 or fewer values → bins centered on the unique values
+            bin_edges = np.concatenate(([unique_vals[0]-0.5], unique_vals + 0.5))
+        
+        # Histogram counts
+        counts = []
+        for i in range(len(bin_edges)-1):
+            lower, upper = bin_edges[i], bin_edges[i+1]
+            if i == 0:
+                count = filtered_df[(monthly_values >= lower) & (monthly_values <= upper)].shape[0]
+            else:
+                count = filtered_df[(monthly_values > lower) & (monthly_values <= upper)].shape[0]
+            counts.append(count)
+        
+        percentages = np.array(counts) / np.sum(counts) * 100
+
+        # Plot
+        fig, ax = plt.subplots(figsize=(5, 4))
+        x = np.arange(len(percentages))
+        for i in range(len(percentages)):
+            ax.bar(x[i], percentages[i], width=1.0, color=colors["shifts"][i], edgecolor='black', linewidth=1)
+            if percentages[i] > 2:
+                ax.text(x[i], percentages[i]+1, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
+        
+        ax.set_ylim(0, 100)
+        ax.set_xlabel('Habitat monthly shifts', fontsize=20)
+        ax.set_ylabel('Percentage of \npatches', fontsize=20)
+        
+        # Set x-axis labels
+        if len(unique_vals) > 4:
+            ax.set_xticks(x)
+            ax.set_xticklabels([f"{bin_edges[i]}-{bin_edges[i+1]-1}" for i in range(len(bin_edges)-1)], rotation=45, ha='right')
+        else:
+            ax.set_xticks(x)
+            ax.set_xticklabels([str(int(val)) for val in unique_vals], rotation=45, ha='right')
+        
+        ax.tick_params(labelsize=20)
+        plt.tight_layout()
+        plt.savefig(f"{save_dir}/histogram_monthly_shifts{target_habitat}_percentage.png", dpi=600, transparent=True)
+        plt.show()
+
     # -------------------- Desiccation Risk --------------------
     if METRICS_TO_COMPUTE.get("desiccation_risk", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
@@ -1089,7 +1459,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         for i in range(len(percentages)):
             ax.bar(bin_centers[i], percentages[i], width=1.0, color=colors["desiccation"][i], edgecolor='black', align='center')
             if percentages[i] > 2:
-                ax.text(bin_centers[i], percentages[i]+1, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
+                ax.text(bin_centers[i], percentages[i]+5, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
 
         plt.ylim(0, 100)
         ax.set_xlabel('Desiccation risk', fontsize=20)
@@ -1101,8 +1471,465 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         plt.savefig(f"{save_dir}/histogram_desicc{target_habitat}_percentage.png", dpi=600, transparent=True)
         plt.show()
 
+        if FOCUS_ON_ZONE:
+            # -------------------- Dry Window Count --------------------
+            dry_count_col = f'hab{target_habitat}_dry_window_count'
 
+            if dry_count_col in filtered_df.columns:
 
+                unique_vals = np.sort(filtered_df[dry_count_col].dropna().unique())
+
+                if len(unique_vals) > 4:
+                    max_val = int(filtered_df[dry_count_col].max())
+                    bin_edges = np.linspace(0, max_val + 1, 5, dtype=int)
+                else:
+                    bin_edges = np.concatenate(([unique_vals[0] - 0.5], unique_vals + 0.5))
+
+                counts = []
+                for i in range(len(bin_edges) - 1):
+                    lower, upper = bin_edges[i], bin_edges[i + 1]
+                    if i == 0:
+                        count = filtered_df[(filtered_df[dry_count_col] >= lower) & (filtered_df[dry_count_col] <= upper)].shape[0]
+                    else:
+                        count = filtered_df[(filtered_df[dry_count_col] > lower) & (filtered_df[dry_count_col] <= upper)].shape[0]
+                    counts.append(count)
+
+                percentages = np.array(counts) / np.sum(counts) * 100
+
+                fig, ax = plt.subplots(figsize=(5, 4))
+                x = np.arange(len(percentages))
+                for i in range(len(percentages)):
+                    ax.bar(x[i], percentages[i], width=1.0, color=colors["desiccation"][i % 4], edgecolor='black', linewidth=1)
+                    if percentages[i] > 2:
+                        ax.text(x[i], percentages[i] + 1, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
+
+                ax.set_ylim(0, 100)
+                ax.set_xlabel('Number of dry windows', fontsize=20)
+                ax.set_ylabel('Percentage of \npatches', fontsize=20)
+
+                if len(unique_vals) > 4:
+                    ax.set_xticks(x)
+                    ax.set_xticklabels([f"{bin_edges[i]}-{bin_edges[i+1]-1}" for i in range(len(bin_edges)-1)], rotation=45, ha='right')
+                else:
+                    ax.set_xticks(x)
+                    ax.set_xticklabels([str(int(val)) for val in unique_vals], rotation=45, ha='right')
+
+                ax.tick_params(labelsize=16)
+                plt.tight_layout()
+                plt.savefig(f"{save_dir}/histogram_dry_window_count{target_habitat}_percentage.png", dpi=600, transparent=True)
+                plt.show()
+            # -------------------- Dry Window Duration Distribution --------------------
+            median_col = f'hab{target_habitat}_dry_median_h'
+            q1_col     = f'hab{target_habitat}_dry_q1_h'
+            q3_col     = f'hab{target_habitat}_dry_q3_h'
+            max_col    = f'hab{target_habitat}_dry_max_cumul_h'
+
+            cols_present = [c for c in [median_col, q1_col, q3_col, max_col] if c in filtered_df.columns]
+
+            if cols_present:
+
+                plot_data = filtered_df[cols_present].dropna(how='all')
+
+                # Rename for readable x-axis labels
+                rename_map = {
+                    max_col:    "Max",
+                    q3_col:     "Q3",
+                    median_col: "Median",
+                    q1_col:     "Q1",
+                }
+                plot_data = plot_data.rename(columns=rename_map)
+                col_order = [rename_map[c] for c in cols_present]
+
+                fig, ax = plt.subplots(figsize=(6, 5))
+
+                plot_data_long = plot_data[col_order].melt(var_name="Statistic", value_name="Duration (h)")
+
+                sns.boxplot(
+                    x="Statistic",
+                    y="Duration (h)",
+                    data=plot_data_long,
+                    order=col_order,
+                    color=colors["desiccation"][1],
+                    showfliers=False,
+                    ax=ax
+                )
+
+                ax.set_xlabel("", fontsize=18)
+                ax.set_ylabel("Dry window duration (h)", fontsize=18)
+                ax.set_title(f"Distribution of dry window durations\nacross patches (habitat {target_habitat})", fontsize=16)
+                ax.tick_params(labelsize=16)
+
+                plt.tight_layout()
+                plt.savefig(f"{save_dir}/boxplot_dry_window_duration{target_habitat}.png", dpi=600, transparent=True)
+                plt.show()
+
+            # -------------------- Desiccation Risk Statistics (Max / Median / Q1 / Q3) --------------------
+            risk_cols = {
+                "Max\n(DryMax)":    f'hab{target_habitat}_DesicRisk',
+                "Median":           f'hab{target_habitat}_desicRisk_median',
+                "Q1":               f'hab{target_habitat}_desicRisk_q1',
+                "Q3":               f'hab{target_habitat}_desicRisk_q3',
+            }
+
+            # Only keep columns that actually exist in the dataframe
+            risk_cols = {label: col for label, col in risk_cols.items() if col in filtered_df.columns}
+
+            if risk_cols:
+                bin_edges  = [0.5, 1.5, 2.5, 3.5, 4.5]
+                bin_centers = [1, 2, 3, 4]
+
+                fig, axes = plt.subplots(1, len(risk_cols), figsize=(4 * len(risk_cols), 5), sharey=True)
+
+                # Make axes always iterable even if only one column
+                if len(risk_cols) == 1:
+                    axes = [axes]
+
+                for ax, (label, col) in zip(axes, risk_cols.items()):
+                    counts, _ = np.histogram(filtered_df[col].dropna(), bins=bin_edges)
+                    percentages = counts / counts.sum() * 100
+
+                    for i in range(len(percentages)):
+                        ax.bar(
+                            bin_centers[i], percentages[i],
+                            width=1.0,
+                            color=colors["desiccation"][i],
+                            edgecolor='black',
+                            align='center'
+                        )
+                        if percentages[i] > 2:
+                            ax.text(
+                                bin_centers[i], percentages[i] + 1,
+                                f"{percentages[i]:.1f}%",
+                                ha='center', va='bottom', fontsize=12
+                            )
+
+                    ax.set_title(label, fontsize=16)
+                    ax.set_xlabel('Desiccation risk class', fontsize=14)
+                    ax.set_xticks(bin_centers)
+                    ax.set_xlim(0.5, 4.5)
+                    ax.set_ylim(0, 100)
+                    ax.tick_params(labelsize=13)
+
+                axes[0].set_ylabel('Percentage of patches', fontsize=14)
+
+                fig.suptitle(
+                    f"Desiccation risk distribution across patches\n"
+                    f"(habitat {target_habitat}, derived from Max / Median / Q1 / Q3 dry window duration)",
+                    fontsize=15
+                )
+
+                plt.tight_layout()
+                plt.savefig(
+                    f"{save_dir}/histogram_desicc_risk_stats{target_habitat}_percentage.png",
+                    dpi=600, transparent=True
+                )
+                plt.show()
+
+    if FOCUS_ON_ZONE:
+        # -------------------- Target Window Count --------------------
+        targ_count_col = f'hab{target_habitat}_window_count'
+
+        if targ_count_col in filtered_df.columns:
+
+            unique_vals = np.sort(filtered_df[targ_count_col].dropna().unique())
+
+            if len(unique_vals) > 4:
+                max_val = int(filtered_df[targ_count_col].max())
+                bin_edges = np.linspace(0, max_val + 1, 5, dtype=int)
+            else:
+                bin_edges = np.concatenate(([unique_vals[0] - 0.5], unique_vals + 0.5))
+
+            counts = []
+            for i in range(len(bin_edges) - 1):
+                lower, upper = bin_edges[i], bin_edges[i + 1]
+                if i == 0:
+                    count = filtered_df[(filtered_df[targ_count_col] >= lower) & (filtered_df[targ_count_col] <= upper)].shape[0]
+                else:
+                    count = filtered_df[(filtered_df[targ_count_col] > lower) & (filtered_df[targ_count_col] <= upper)].shape[0]
+                counts.append(count)
+
+            percentages = np.array(counts) / np.sum(counts) * 100
+
+            fig, ax = plt.subplots(figsize=(5, 4))
+            x = np.arange(len(percentages))
+            for i in range(len(percentages)):
+                ax.bar(x[i], percentages[i], width=1.0, color=colors["shifts"][i % 4], edgecolor='black', linewidth=1)
+                if percentages[i] > 2:
+                    ax.text(x[i], percentages[i] + 1, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
+
+            ax.set_ylim(0, 100)
+            ax.set_xlabel(f'Number of habitat {target_habitat} windows', fontsize=20)
+            ax.set_ylabel('Percentage of \npatches', fontsize=20)
+
+            if len(unique_vals) > 4:
+                ax.set_xticks(x)
+                ax.set_xticklabels([f"{bin_edges[i]}-{bin_edges[i+1]-1}" for i in range(len(bin_edges)-1)], rotation=45, ha='right')
+            else:
+                ax.set_xticks(x)
+                ax.set_xticklabels([str(int(val)) for val in unique_vals], rotation=45, ha='right')
+
+            ax.tick_params(labelsize=16)
+            plt.tight_layout()
+            plt.savefig(f"{save_dir}/histogram_targ_window_count{target_habitat}_percentage.png", dpi=600, transparent=True)
+            plt.show()
+    
+        # -------------------- Target Window Duration Distribution --------------------
+        median_col = f'hab{target_habitat}_median_h'
+        q1_col     = f'hab{target_habitat}_q1_h'
+        q3_col     = f'hab{target_habitat}_q3_h'
+        max_col    = f'hab{target_habitat}_max_cumul_h'
+
+        cols_present = [c for c in [median_col, q1_col, q3_col, max_col] if c in filtered_df.columns]
+
+        if cols_present:
+
+            plot_data = filtered_df[cols_present].dropna(how='all')
+
+            rename_map = {
+                max_col:    "Max",
+                q3_col:     "Q3",
+                median_col: "Median",
+                q1_col:     "Q1",
+            }
+            plot_data = plot_data.rename(columns=rename_map)
+            col_order = [rename_map[c] for c in cols_present]
+
+            fig, ax = plt.subplots(figsize=(6, 5))
+
+            plot_data_long = plot_data[col_order].melt(var_name="Statistic", value_name="Duration (h)")
+
+            sns.boxplot(
+                x="Statistic",
+                y="Duration (h)",
+                data=plot_data_long,
+                order=col_order,
+                color=colors["shifts"][1],
+                showfliers=False,
+                ax=ax
+            )
+
+            ax.set_xlabel("", fontsize=18)
+            ax.set_ylabel(f"Habitat {target_habitat} window duration (h)", fontsize=18)
+            ax.set_title(f"Distribution of habitat {target_habitat} window durations\nacross patches", fontsize=16)
+            ax.tick_params(labelsize=16)
+
+            plt.tight_layout()
+            plt.savefig(f"{save_dir}/boxplot_targ_window_duration{target_habitat}.png", dpi=600, transparent=True)
+            plt.show()
+
+def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds, save_dir):
+    """
+    Compare desiccation metrics across gravel banks (ID_POLYGON) using
+    Kruskal-Wallis and Dunn post-hoc tests, with boxplots per polygon.
+    """
+    # -------------------------------------------------------
+    # Load data
+    # -------------------------------------------------------
+    df = pd.read_csv(csv_path)
+
+    # Keep only meshes that experience the target habitat
+    df = df[df[f'prob_h_{target_habitat}'] > 0].copy()
+
+    # Drop meshes with no polygon assignment
+    df = df.dropna(subset=["ID_POLYGON"])
+
+    # Convert to string for seaborn compatibility
+    df["ID_POLYGON"] = df["ID_POLYGON"].astype(int).astype(str)
+
+    polygon_order = sorted(df["ID_POLYGON"].unique())
+    n_polygons = len(polygon_order)
+
+    # Ensure output directory exists
+    os.makedirs(save_dir, exist_ok=True)
+
+    summary_results = [] # Necessary for the statistical table to plot 
+
+    # -------------------------------------------------------
+    # Helper function
+    # -------------------------------------------------------
+    def _plot_one_metric(col, ylabel, filename):
+
+        data = df[["ID_POLYGON", col]].dropna()
+
+        if data.empty:
+            print(f"⚠️ No data for {col}, skipping.")
+            return
+
+        # Prepare groups
+        groups = [data[data["ID_POLYGON"] == pid][col].values for pid in polygon_order]
+        groups = [g for g in groups if len(g) > 0]
+
+        if len(groups) < 2:
+            print(f"⚠️ Not enough groups for {col}, skipping.")
+            return
+
+        # ---------------------------------------------------
+        # Check for identical values
+        # ---------------------------------------------------
+        all_values = np.concatenate(groups)
+
+        if np.all(all_values == all_values[0]):
+            print(f"\n{col} — All values identical across polygons → skipping statistical test")
+            H, p = np.nan, np.nan
+            letters = {}
+        else:
+            # ---- Kruskal-Wallis
+            H, p = kruskal(*groups)
+            print(f"\n{col} — Kruskal-Wallis: H={H:.3f}, p={p:.4f}")
+
+            # ---- Dunn post-hoc
+            posthoc_df = sp.posthoc_dunn(
+                data,
+                val_col=col,
+                group_col="ID_POLYGON",
+                p_adjust="holm"
+            )
+
+            letters = compact_letter_assignment(posthoc_df)
+
+        # ---------------------------------------------------
+        # Plot
+        # ---------------------------------------------------
+        fig, ax = plt.subplots(figsize=(max(8, n_polygons * 1.2), 6))
+
+        sns.boxplot(
+            x="ID_POLYGON",
+            y=col,
+            hue="ID_POLYGON",
+            data=data,
+            order=polygon_order,
+            # palette="tab10",
+            palette = sns.color_palette("husl", n_polygons),
+            showfliers=False,
+            saturation=1,
+            legend=False,
+            ax=ax
+        )
+
+        # ---- Add compact letters
+        y_offset = data[col].max() * 0.03 if data[col].max() != 0 else 0.1
+
+        for i, pid in enumerate(polygon_order):
+            group_vals = data[data["ID_POLYGON"] == pid][col]
+            if len(group_vals) == 0:
+                continue
+
+            Q3 = group_vals.quantile(0.75)
+
+            ax.text(
+                i,
+                Q3 + y_offset,
+                letters.get(pid, ""),
+                ha='center',
+                va='bottom',
+                fontsize=14,
+                fontweight='bold',
+                bbox=dict(facecolor='white', edgecolor='none', alpha=0.8)
+            )
+
+        # ---- Threshold lines (only for duration metrics)
+        if "h" in col:
+            threshold_labels = {
+                "desicc_1": "Risk 1→2",
+                "desicc_2": "Risk 2→3",
+                "desicc_3": "Risk 3→4",
+            }
+
+            for key, label in threshold_labels.items():
+                if key in desiccation_thresholds:
+                    y = desiccation_thresholds[key]
+
+                    ax.axhline(
+                        y,
+                        color='grey',
+                        linestyle='--',
+                        linewidth=1,
+                        alpha=0.7
+                    )
+
+                    ax.text(
+                        n_polygons - 0.5,
+                        y,
+                        label,
+                        va='bottom',
+                        ha='right',
+                        fontsize=11,
+                        color='grey'
+                    )
+
+        # ---------------------------------------------------
+        # Title with improved feedback
+        # ---------------------------------------------------
+        if np.isnan(H):
+            title_stats = "(No variability across polygons)"
+        else:
+            title_stats = f"(Kruskal-Wallis H={H:.2f}, p={p:.4f})"
+
+        ax.set_title(
+            f"{ylabel} per gravel bank\n{title_stats}",
+            fontsize=16
+        )
+
+        ax.set_xlabel("Gravel bank (ID_POLYGON)", fontsize=16)
+        ax.set_ylabel(ylabel, fontsize=16)
+        ax.tick_params(labelsize=14)
+
+        plt.tight_layout()
+
+        # Save
+        save_path = os.path.join(save_dir, filename)
+        plt.savefig(save_path, dpi=600, transparent=True)
+        plt.close()
+
+        # ---------------------------------------------------
+        # Store summary results
+        # ---------------------------------------------------
+        if np.isnan(H):
+            summary_results.append({
+                "metric": col,
+                "n_polygons": len(groups),
+                "variability": False,
+                "kruskal_H": np.nan,
+                "p_value": np.nan,
+                "significant": False
+            })
+        else:
+            summary_results.append({
+                "metric": col,
+                "n_polygons": len(groups),
+                "variability": True,
+                "kruskal_H": H,
+                "p_value": p,
+                "significant": p < 0.05
+            })
+    # -------------------------------------------------------
+    # Metrics to plot
+    # -------------------------------------------------------
+    metrics_to_plot = {
+        f"hab{target_habitat}_DesicRisk":        ("Desiccation risk (DryMax)",          "desicc_risk_by_polygon.png"),
+        f"hab{target_habitat}_desicRisk_median": ("Desiccation risk (median window)",   "desicc_risk_median_by_polygon.png"),
+        f"hab{target_habitat}_desicRisk_q1":     ("Desiccation risk (Q1 window)",       "desicc_risk_q1_by_polygon.png"),
+        f"hab{target_habitat}_desicRisk_q3":     ("Desiccation risk (Q3 window)",       "desicc_risk_q3_by_polygon.png"),
+        f"hab{target_habitat}_dry_median_h":     ("Median dry window duration (h)",     "desicc_median_h_by_polygon.png"),
+        f"hab{target_habitat}_dry_max_cumul_h":  ("Max dry window duration (h)",        "desicc_max_h_by_polygon.png"),
+        f"hab{target_habitat}_dry_window_count": ("Number of dry windows",              "desicc_window_count_by_polygon.png"),
+    }
+
+    for col, (ylabel, filename) in metrics_to_plot.items():
+        if col in df.columns:
+            _plot_one_metric(col, ylabel, filename)
+        else:
+            print(f"⚠️ Column {col} not found in CSV, skipping.")
+
+    # -------------------------------------------------------
+    # Save summary table
+    # -------------------------------------------------------
+    summary_df = pd.DataFrame(summary_results)
+
+    summary_path = os.path.join(save_dir, "desiccation_summary_statistics.csv")
+    summary_df.to_csv(summary_path, index=False)
+
+    print(f"\n📊 Summary statistics saved to: {summary_path}")
 # ==========================================================
 # MAIN
 # ==========================================================
@@ -1110,13 +1937,15 @@ def main():
     OUTPUT_FOLDER_PLOTS = os.path.join(OUTPUT_FOLDER, "Plots")
     os.makedirs(OUTPUT_FOLDER_PLOTS, exist_ok=True)
 
-    
+    """ 
     output_hist_most_prob_and_intensity = os.path.join(OUTPUT_FOLDER_PLOTS, "hist_most_prob_and_associated_intensity_simulated_zone.png")
     plot_most_prob_intensity(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_hist_most_prob_and_intensity
     )
@@ -1125,8 +1954,10 @@ def main():
     plot_most_prob_intensity_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_hist_most_prob_and_intensity_target_hab
@@ -1136,8 +1967,10 @@ def main():
     plot_most_prob_percentages(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_percentages
     )
@@ -1146,8 +1979,10 @@ def main():
     plot_most_prob_percentages_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_percentages_target_hab
@@ -1158,8 +1993,10 @@ def main():
     plot_most_prob_horizontal(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         save_path=output_horizontal
     )
@@ -1168,8 +2005,10 @@ def main():
     plot_most_prob_horizontal_target_hab(
         csv_path=csv_path,
         habitat_col="mostProb",
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         habitat_in_focus=HABITAT_TARGETS,
         save_path=output_horizontal_target_hab
@@ -1179,8 +2018,10 @@ def main():
     output_hab_discharge = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain.png")
     plot_habitat_availability_per_discharge(
     csv_path=csv_path_static,
-    habitat_labels_dict=habitat_labels_dict,
+    habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+    habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
     habitat_colors_dict=habitat_colors_dict,
+    focus_on_zone=FOCUS_ON_ZONE,
     number_of_habitats=NUMBER_OF_HABITATS,
     save_path=output_hab_discharge
     )
@@ -1188,25 +2029,59 @@ def main():
     output_hab_discharge_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_target_hab.png")
     plot_habitat_availability_per_discharge_target_hab(
         csv_path=csv_path_static,
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_discharge_target_hab
+    )
+    
+    output_hab_discharge_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_surface.png")
+    plot_habitat_availability_per_discharge_surface(
+        csv_path=csv_path_static,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
+        number_of_habitats=NUMBER_OF_HABITATS,
+        save_path=output_hab_discharge_surface
+    )
+
+    output_hab_discharge_target_hab_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_target_hab_surface.png")
+    plot_habitat_availability_per_discharge_surface_target_hab(
+        csv_path=csv_path_static,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
+        habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
+        number_of_habitats=NUMBER_OF_HABITATS,
+        target_habitat=HABITAT_TARGETS,
+        save_path=output_hab_discharge_target_hab_surface
     )
 
     output_hab_prob_distrib_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_probabilities_target_hab.png")
     plot_probability_distribution_target_hab(
         csv_path=csv_path,
-        habitat_labels_dict=habitat_labels_dict,
+        habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
+        habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
+        focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
         save_path=output_hab_prob_distrib_target_hab
     )    
+    
+    plot_histograms_target_habitat(csv_path=csv_path, target_habitat=HABITAT_TARGETS, METRICS_TO_COMPUTE=METRICS_TO_COMPUTE, save_dir=OUTPUT_FOLDER_PLOTS, FOCUS_ON_ZONE=FOCUS_ON_ZONE)
+    """
 
-    plot_histograms_target_habitat(csv_path=csv_path, target_habitat=HABITAT_TARGETS, METRICS_TO_COMPUTE=METRICS_TO_COMPUTE, save_dir=OUTPUT_FOLDER_PLOTS)
-
+    plot_desiccation_by_polygon(
+        csv_path=csv_path,
+        target_habitat=HABITAT_TARGETS,
+        desiccation_thresholds=DESICCATION_THRESHOLDS,  # import from variables_from_config
+        save_dir=OUTPUT_FOLDER_PLOTS
+    )
 
 if __name__ == "__main__":
     main()

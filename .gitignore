@@ -1,9 +1,6 @@
-# Data files
-data/input/Flow_data/
-data/input/Study_zone/
-
-# Data files
-data/output/
-
 scripts/__pycache__ 
-scripts/anonymize.py
+
+# Data files
+
+
+# Data files
