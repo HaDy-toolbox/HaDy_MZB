@@ -86,12 +86,12 @@ if FOCUS_ON_ZONE:
     # Metrics calculation
     output_metrics = os.path.join(OUTPUT_FOLDER_TIME, "Metric_files")
     os.makedirs(output_metrics, exist_ok=True)
-    output_metrics_values = os.path.join(output_metrics, f"metrics_{folder_suffix}.csv")
+    output_metrics_values = os.path.join(output_metrics, "metrics.csv")
 
     process_mesh_data_focus_on_zone(discharge_with_match, output_csv_habitat_classification_focus_on_zone, output_metrics_values, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, START_AT_FIRST_OCCURENCE)
 
     # Save the metrics to a shapefile 
-    output_mesh_metrics_values = os.path.join(output_metrics, f"metrics_{folder_suffix}.shp")
+    output_mesh_metrics_values = os.path.join(output_metrics, "metrics.shp")
     join_mesh_with_CSV_data(
         mesh_file=output_prepared_shp,
         csv_file=output_metrics_values,
@@ -114,12 +114,12 @@ else:
     # Metrics calculation
     output_metrics = os.path.join(OUTPUT_FOLDER_TIME, "Metric_files")
     os.makedirs(output_metrics, exist_ok=True)
-    output_metrics_values = os.path.join(output_metrics, f"metrics_{folder_suffix}.csv")
+    output_metrics_values = os.path.join(output_metrics, "metrics.csv")
 
     process_mesh_data(discharge_with_match, output_habitat_attribution, output_metrics_values, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, START_AT_FIRST_OCCURENCE)
 
     # Save the metrics to a shapefile 
-    output_mesh_metrics_values = os.path.join(output_metrics, f"metrics_{folder_suffix}.shp")
+    output_mesh_metrics_values = os.path.join(output_metrics, "metrics.shp")
     join_mesh_with_CSV_data(
         mesh_file=output_prepared_shp,
         csv_file=output_metrics_values,
