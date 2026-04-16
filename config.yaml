@@ -3,18 +3,18 @@
 # MANDATORY PARAMETERS
 
 # --- Input files ---
-input_shp_filename: "joined_layer_small_zone.shp" # name of the input shapefile located in the data/input/Shapefile folder 
-crs: "EPSG:2154"   # CSR of the GIS project # crs: "EPSG:2056"  
-input_flow_timeseries_filename: "April_September_2019_delta_one_hour.csv" # name of the flow time-series input file located in the data/input/Flow_data folder. 
-time_step_min: 60.0   # timestep of the flow time-series in minutes (float, e.g., 10.0 for a 10 minute timestep)
+input_shp_filename: "Example_input_shapefile.shp" # name of the input shapefile located in the data/input/Shapefile folder 
+crs: "EPSG:2056"   # CSR of the GIS project 
+input_flow_timeseries_filename: "Week_timestep_10_min.csv" # name of the flow time-series input file located in the data/input/Flow_data folder. 
+time_step_min: 10.0   # timestep of the flow time-series in minutes (float, e.g., 10.0 for a 10 minute timestep)
 
 # shapefile column configuration: the prefix of the columns containing the relevant information (e.g., for discharge 12.5 m3/s: "ho12_5" for the columns water depth and "vit12_5" for the water velocity)
-shp_depth_prefix: "ho"
-shp_vel_prefix: "vit"
-shp_x_colname: "x_l93"
-shp_y_colname: "y_l93"
 shp_id_colname: "id"
-shp_surf_colname: "surf_m2"
+shp_x_colname: "x"
+shp_y_colname: "y"
+shp_surf_colname: "area"
+shp_depth_prefix: "d_"
+shp_vel_prefix: "v_"
 
 # ===============================================================
 # --- Habitat classification thresholds ---
@@ -33,7 +33,7 @@ number_of_habitats: 7 # Integer : the number of habitats that you have based on 
 # ===============================================================
 # --- Metrics calculation ---
 target_habitat: # target habitat type for which the metrics will be calculated. Metrics are only calculated for the meshes that experience this habitat type at least once during the habitat time-series
-  - 2 # unique integer from the habitat classification definition
+  - 3 # unique integer from the habitat classification definition
 
 metrics_to_compute: # metrics selection : "true" to compute the metric, "false" otherwise
   # Shifts
@@ -55,7 +55,7 @@ metrics_to_compute: # metrics selection : "true" to compute the metric, "false" 
 suitable_hab_shifts: [1, 2, 3, 4, 5] # list of habitat types considered “suitable” in between which shifts will be calculated --> shift_targ_daily
 
 # Desiccation
-start_at_first_occurrence: true # "true" to start the desiccation metric calculation after the first occurrence of the habitat type in the habitat time series. "false" to start the desiccation metric calculation at the beginning of the time-series 
+start_at_first_occurrence: false # "true" to start the desiccation metric calculation after the first occurrence of the habitat type in the habitat time series. "false" to start the desiccation metric calculation at the beginning of the time-series 
 
 desiccation_thresholds: # Example of desiccation thresholds based on consecutive durations spent outside of water (in hours)
   desicc_1: 1 #risk = 1 if dry consecutive time ≤ desicc_1
@@ -64,7 +64,7 @@ desiccation_thresholds: # Example of desiccation thresholds based on consecutive
   # risk is 4 if dry consecutive time > desicc_3
 
 # Drift
-up_ramp: true # "true": drift_thresholds_with_ramp selected for drift calculation. "false", drift_thresholds selected (no consideration of ramp rate)
+up_ramp: false # "true": drift_thresholds_with_ramp selected for drift calculation. "false", drift_thresholds selected (no consideration of ramp rate)
 
 drift_thresholds_with_ramp: # Example of drift thresholds based on current velocity thresholds in m/s, if up_ramp is true (see user guide)
   drift_1: 0.4
@@ -79,7 +79,7 @@ drift_thresholds: # Example of drift thresholds based on current velocity thresh
 
 # ===========================================================================================================================================================================================================================================================================================================================
 # OPTIONAL: ADVANCED PARAMETERS
-focus_on_zone: true # "true" if focus set on a specific zone (e.g., gravel bancs for eggs desiccation), "false" otherwise (by default)
+focus_on_zone: false # "true" if focus set on a specific zone (e.g., gravel bancs for eggs desiccation), "false" otherwise (by default)
 zone_interest_filename: "banc_de_galet_v13feb2026.shp" # name of the focus zone shapefile located in the data/input/Focus_zone folder 
 id_polygon_zone_interest: "ID_POLYGON" # shapefile's id column name of the polygons of interest (e.g., individual gravel bar id) /!\ This column needs to be named differently than the shp_id_colname id in the input shapefile. Rename the column if needed.
 zone_ponte_field: "banc_galet" # name to give to this focus zone in output files (value of 1 if mesh part of the focus zone, 0 if not)
