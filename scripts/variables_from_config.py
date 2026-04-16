@@ -10,16 +10,22 @@ from pathlib import Path
 def load_config(config_path=None):
     """
     Load YAML configuration file.
+    Falls back to config.yaml if local.yaml is not found (example mode).
     """
     if config_path is None:
+        config_path = Path(__file__).resolve().parents[1] / "local.yaml"
+
+    if not os.path.isfile(config_path):
+        print("Toolbox run in example mode since tailored local configuration file local.yaml not found.")
         config_path = Path(__file__).resolve().parents[1] / "config.yaml"
 
+    if not os.path.isfile(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
     with open(config_path, encoding="utf-8") as file:
-        # with open(config_path, "r") as file:
         config = yaml.safe_load(file)
 
     return config
-
 
 # ====================================================
 # ================== LOAD VARIABLES ==================
