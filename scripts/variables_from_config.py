@@ -52,9 +52,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INPUT_FOLDER = PROJECT_ROOT / "data" / "input"
 OUTPUT_FOLDER = PROJECT_ROOT / "data" / "output"
 
-FINAL_CSV_PATH = _config["final_csv_path"]
-FINAL_SHP_PATH = _config["final_shp_path"]
-STATIC_HABITAT_CSV_PATH = _config["static_habitat_csv_path"]
+BASE_OUTPUT_PATH = OUTPUT_FOLDER / _config["base_output_path"]
+FINAL_CSV_PATH = BASE_OUTPUT_PATH / _config["final_csv_path"]
+FINAL_SHP_PATH = BASE_OUTPUT_PATH / _config["final_shp_path"]
+STATIC_HABITAT_CSV_PATH = BASE_OUTPUT_PATH / _config["static_habitat_csv_path"]
 
 # --- Zone selection ---
 AREA_FOLDER = INPUT_FOLDER / "Shapefile"

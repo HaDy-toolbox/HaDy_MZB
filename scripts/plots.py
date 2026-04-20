@@ -8,7 +8,7 @@ import os
 import matplotlib.ticker as mtick
 import matplotlib.colors as mcolors
 
-from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH
+from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, BASE_OUTPUT_PATH, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_SURF_COLNAME
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
 
@@ -228,7 +228,7 @@ def plot_most_prob_intensity(
     """
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Plot most probable habitat type and related intensity
@@ -353,7 +353,7 @@ def plot_most_prob_intensity_target_hab(
     """
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: ALL MESHES IN SIMULATED DOMAIN - Percentage of most probable habitat types
@@ -422,7 +422,7 @@ def plot_most_prob_percentages(
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Percentage of most probable habitat types
@@ -497,7 +497,7 @@ def plot_most_prob_percentages_target_hab(
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: ALL MESHES IN SIMULATED DOMAIN - Horizontal stacked bar of dominant habitat types
@@ -574,7 +574,7 @@ def plot_most_prob_horizontal(
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=600, transparent=True)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Horizontal stacked bar of dominant habitat types
@@ -658,7 +658,7 @@ def plot_most_prob_horizontal_target_hab(
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=600, transparent=True)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN PERCENTAGE OF MESHES - Habitat availability per discharge (stacked %)
@@ -774,14 +774,10 @@ def plot_habitat_availability_per_discharge(
     )
 
     plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
-
     plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-
     plt.tight_layout()
-
     plt.savefig(save_path, dpi=600)
-
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - IN PERCENTAGE OF MESHES - Habitat availability per discharge (stacked %)
@@ -911,7 +907,7 @@ def plot_habitat_availability_per_discharge_target_hab(
     plt.grid(True, axis='y', linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN SURFACE - Habitat availability per discharge (stacked %)
@@ -954,14 +950,14 @@ def plot_habitat_availability_per_discharge_surface(
     df_valid = df.loc[valid_rows]
 
     # Total surface of the simulated domain
-    total_surface = df_valid["surf_m2"].sum()
+    total_surface = df_valid[SHP_SURF_COLNAME].sum()
 
     # -----------------------------
     # Compute habitat surface
     # -----------------------------
     habitat_data = {
         ht: [
-            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
+            df_valid.loc[df_valid[col] == ht, SHP_SURF_COLNAME].sum()
             for col in habitat_columns
         ]
         for ht in habitat_range
@@ -1035,14 +1031,10 @@ def plot_habitat_availability_per_discharge_surface(
     )
 
     plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(decimals=0))
-
     plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-
     plt.tight_layout()
-
     plt.savefig(save_path, dpi=600)
-
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - IN SURFACE - Habitat availability per discharge (stacked %)
@@ -1093,14 +1085,14 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     df_valid = df_valid.loc[has_target]
 
     # Total surface of filtered patches
-    total_surface = df_valid["surf_m2"].sum()
+    total_surface = df_valid[SHP_SURF_COLNAME].sum()
 
     # -----------------------------
     # Compute habitat surface
     # -----------------------------
     habitat_data = {
         ht: [
-            df_valid.loc[df_valid[col] == ht, "surf_m2"].sum()
+            df_valid.loc[df_valid[col] == ht, SHP_SURF_COLNAME].sum()
             for col in habitat_columns
         ]
         for ht in habitat_range
@@ -1175,7 +1167,7 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     plt.grid(True, axis='y', linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 # ==========================================================
 # FUNCTION: TARGET HABITAT - Habitat probability for each habitat type
@@ -1269,7 +1261,7 @@ def plot_probability_distribution_target_hab(
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=600)
-    plt.show()
+    # plt.show()
 
 def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE, save_dir, FOCUS_ON_ZONE):
     """
@@ -1320,13 +1312,13 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
     ax.tick_params(labelsize=20)
     plt.tight_layout()
     plt.savefig(f"{save_dir}/histogram_prob{target_habitat}_percentage.png", dpi=600, transparent=True)
-    plt.show()
+    # plt.show()
 
     # -------------------- Drift Risk --------------------
     if METRICS_TO_COMPUTE.get("drift_percentile", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
         bin_centers = [1, 2, 3, 4]
-        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DriftPerc'], bins=bin_edges) 
+        counts, _ = np.histogram(filtered_df[f'h{target_habitat}_driftP'], bins=bin_edges) 
         percentages = counts / counts.sum() * 100
 
         fig, ax = plt.subplots(figsize=(5, 4))
@@ -1394,7 +1386,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         ax.tick_params(labelsize=20)
         plt.tight_layout()
         plt.savefig(f"{save_dir}/histogram_shifts{target_habitat}_percentage.png", dpi=600, transparent=True)
-        plt.show()
+        # plt.show()
 
     # -------------------- Habitat Shifts Monthly--------------------
     if METRICS_TO_COMPUTE.get("shift_targ_daily", False):
@@ -1446,13 +1438,13 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         ax.tick_params(labelsize=20)
         plt.tight_layout()
         plt.savefig(f"{save_dir}/histogram_monthly_shifts{target_habitat}_percentage.png", dpi=600, transparent=True)
-        plt.show()
+        # plt.show()
 
     # -------------------- Desiccation Risk --------------------
     if METRICS_TO_COMPUTE.get("desiccation_risk", False):
         bin_edges = [0.5, 1.5, 2.5, 3.5, 4.5]
         bin_centers = [1, 2, 3, 4]
-        counts, _ = np.histogram(filtered_df[f'hab{target_habitat}_DesicRisk'], bins=bin_edges)
+        counts, _ = np.histogram(filtered_df[f'h{target_habitat}_desicR'], bins=bin_edges)
         percentages = counts / counts.sum() * 100
 
         fig, ax = plt.subplots(figsize=(5, 4))
@@ -1469,11 +1461,11 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
         ax.tick_params(labelsize=20)
         plt.tight_layout()
         plt.savefig(f"{save_dir}/histogram_desicc{target_habitat}_percentage.png", dpi=600, transparent=True)
-        plt.show()
+        # plt.show()
 
         if FOCUS_ON_ZONE:
             # -------------------- Dry Window Count --------------------
-            dry_count_col = f'hab{target_habitat}_dry_window_count'
+            dry_count_col = f'h{target_habitat}_dry_seq'
 
             if dry_count_col in filtered_df.columns:
 
@@ -1517,12 +1509,13 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
                 ax.tick_params(labelsize=16)
                 plt.tight_layout()
                 plt.savefig(f"{save_dir}/histogram_dry_window_count{target_habitat}_percentage.png", dpi=600, transparent=True)
-                plt.show()
+                # plt.show()
+
             # -------------------- Dry Window Duration Distribution --------------------
-            median_col = f'hab{target_habitat}_dry_median_h'
-            q1_col     = f'hab{target_habitat}_dry_q1_h'
-            q3_col     = f'hab{target_habitat}_dry_q3_h'
-            max_col    = f'hab{target_habitat}_dry_max_cumul_h'
+            median_col = f'h{target_habitat}_dry_med'
+            q1_col     = f'h{target_habitat}_dry_q1'
+            q3_col     = f'h{target_habitat}_dry_q3'
+            max_col    = f'h{target_habitat}_dry_max'
 
             cols_present = [c for c in [median_col, q1_col, q3_col, max_col] if c in filtered_df.columns]
 
@@ -1561,14 +1554,14 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
 
                 plt.tight_layout()
                 plt.savefig(f"{save_dir}/boxplot_dry_window_duration{target_habitat}.png", dpi=600, transparent=True)
-                plt.show()
+                # plt.show()
 
             # -------------------- Desiccation Risk Statistics (Max / Median / Q1 / Q3) --------------------
             risk_cols = {
-                "Max\n(DryMax)":    f'hab{target_habitat}_DesicRisk',
-                "Median":           f'hab{target_habitat}_desicRisk_median',
-                "Q1":               f'hab{target_habitat}_desicRisk_q1',
-                "Q3":               f'hab{target_habitat}_desicRisk_q3',
+                "Max\n(DryMax)":    f'h{target_habitat}_desicR',
+                "Median":           f'h{target_habitat}_dryMedR',
+                "Q1":               f'h{target_habitat}_dry_q1R',
+                "Q3":               f'h{target_habitat}_dry_q3R',
             }
 
             # Only keep columns that actually exist in the dataframe
@@ -1623,11 +1616,11 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
                     f"{save_dir}/histogram_desicc_risk_stats{target_habitat}_percentage.png",
                     dpi=600, transparent=True
                 )
-                plt.show()
+                # plt.show()
 
     if FOCUS_ON_ZONE:
         # -------------------- Target Window Count --------------------
-        targ_count_col = f'hab{target_habitat}_window_count'
+        targ_count_col = f'h{target_habitat}_nb_seq'
 
         if targ_count_col in filtered_df.columns:
 
@@ -1671,13 +1664,13 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
             ax.tick_params(labelsize=16)
             plt.tight_layout()
             plt.savefig(f"{save_dir}/histogram_targ_window_count{target_habitat}_percentage.png", dpi=600, transparent=True)
-            plt.show()
+            # plt.show()
     
         # -------------------- Target Window Duration Distribution --------------------
-        median_col = f'hab{target_habitat}_median_h'
-        q1_col     = f'hab{target_habitat}_q1_h'
-        q3_col     = f'hab{target_habitat}_q3_h'
-        max_col    = f'hab{target_habitat}_max_cumul_h'
+        median_col = f'h{target_habitat}_dur_med'
+        q1_col     = f'h{target_habitat}_dur_q1'
+        q3_col     = f'h{target_habitat}_dur_q3'
+        max_col    = f'h{target_habitat}_max_dur_max'
 
         cols_present = [c for c in [median_col, q1_col, q3_col, max_col] if c in filtered_df.columns]
 
@@ -1715,7 +1708,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
 
             plt.tight_layout()
             plt.savefig(f"{save_dir}/boxplot_targ_window_duration{target_habitat}.png", dpi=600, transparent=True)
-            plt.show()
+            # plt.show()
 
 def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds, save_dir):
     """
@@ -1906,13 +1899,13 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
     # Metrics to plot
     # -------------------------------------------------------
     metrics_to_plot = {
-        f"hab{target_habitat}_DesicRisk":        ("Desiccation risk (DryMax)",          "desicc_risk_by_polygon.png"),
-        f"hab{target_habitat}_desicRisk_median": ("Desiccation risk (median window)",   "desicc_risk_median_by_polygon.png"),
-        f"hab{target_habitat}_desicRisk_q1":     ("Desiccation risk (Q1 window)",       "desicc_risk_q1_by_polygon.png"),
-        f"hab{target_habitat}_desicRisk_q3":     ("Desiccation risk (Q3 window)",       "desicc_risk_q3_by_polygon.png"),
-        f"hab{target_habitat}_dry_median_h":     ("Median dry window duration (h)",     "desicc_median_h_by_polygon.png"),
-        f"hab{target_habitat}_dry_max_cumul_h":  ("Max dry window duration (h)",        "desicc_max_h_by_polygon.png"),
-        f"hab{target_habitat}_dry_window_count": ("Number of dry windows",              "desicc_window_count_by_polygon.png"),
+        f"h{target_habitat}_desicR":          ("Desiccation risk (DryMax)",          "desicc_risk_by_polygon.png"),
+        f"h{target_habitat}_dryMedR":         ("Desiccation risk (median window)",   "desicc_risk_median_by_polygon.png"),
+        f"h{target_habitat}_dry_q1R":         ("Desiccation risk (Q1 window)",       "desicc_risk_q1_by_polygon.png"),
+        f"h{target_habitat}_dry_q3R":         ("Desiccation risk (Q3 window)",       "desicc_risk_q3_by_polygon.png"),
+        f"h{target_habitat}_dry_med":         ("Median dry window duration (h)",     "desicc_median_h_by_polygon.png"),
+        f"h{target_habitat}_dry_max":         ("Max dry window duration (h)",        "desicc_max_h_by_polygon.png"),
+        f"h{target_habitat}_dry_seq":         ("Number of dry windows",              "desicc_window_count_by_polygon.png"),
     }
 
     for col, (ylabel, filename) in metrics_to_plot.items():
@@ -1934,10 +1927,11 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
 # MAIN
 # ==========================================================
 def main():
-    OUTPUT_FOLDER_PLOTS = os.path.join(OUTPUT_FOLDER, "Plots")
+
+    OUTPUT_FOLDER_PLOTS = os.path.join(BASE_OUTPUT_PATH, "Plots")
     os.makedirs(OUTPUT_FOLDER_PLOTS, exist_ok=True)
 
-    """ 
+    
     output_hist_most_prob_and_intensity = os.path.join(OUTPUT_FOLDER_PLOTS, "hist_most_prob_and_associated_intensity_simulated_zone.png")
     plot_most_prob_intensity(
         csv_path=csv_path,
@@ -2074,14 +2068,15 @@ def main():
     )    
     
     plot_histograms_target_habitat(csv_path=csv_path, target_habitat=HABITAT_TARGETS, METRICS_TO_COMPUTE=METRICS_TO_COMPUTE, save_dir=OUTPUT_FOLDER_PLOTS, FOCUS_ON_ZONE=FOCUS_ON_ZONE)
-    """
-
-    plot_desiccation_by_polygon(
-        csv_path=csv_path,
-        target_habitat=HABITAT_TARGETS,
-        desiccation_thresholds=DESICCATION_THRESHOLDS,  # import from variables_from_config
-        save_dir=OUTPUT_FOLDER_PLOTS
-    )
+    
+    df_check = pd.read_csv(csv_path)
+    if FOCUS_ON_ZONE and df_check["ID_POLYGON"].notna().any():
+        plot_desiccation_by_polygon(
+            csv_path=csv_path,
+            target_habitat=HABITAT_TARGETS,
+            desiccation_thresholds=DESICCATION_THRESHOLDS,
+            save_dir=OUTPUT_FOLDER_PLOTS
+        )
 
 if __name__ == "__main__":
     main()

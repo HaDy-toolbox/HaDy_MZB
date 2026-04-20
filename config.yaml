@@ -92,6 +92,12 @@ zone_ponte_field: "banc_galet" # name to give to this focus zone in output files
 
 # ===========================================================================================================================================================================================================================================================================================================================
 # OPTIONAL: OUTPUT FILES PATHS FOR PLOTS AND/OR CLUSTERING
-final_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Metric_files/metrics_Long_small.csv" # path to the output csv file containing the metrics values
-final_shp_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Metric_files/metrics_Long_small.shp" # path to the output shapefile containing the metrics values
-static_habitat_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Habitat_classification/habitat_classification.csv" # path to the csv file containing the habitat classification of each mesh
+# final_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Metric_files/metrics_Long_small.csv" # path to the output csv file containing the metrics values
+# final_shp_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Metric_files/metrics_Long_small.shp" # path to the output shapefile containing the metrics values
+# static_habitat_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Habitat_classification/habitat_classification.csv" # path to the csv file containing the habitat classification of each mesh
+
+base_output_path: "Example_output" # output folder (located in data/output folder) where data to analyze is located in. 
+
+final_csv_path: "Metric_files/metrics.csv"
+final_shp_path: "Metric_files/metrics.shp"
+static_habitat_csv_path: "Habitat_classification/habitat_classification.csv"
