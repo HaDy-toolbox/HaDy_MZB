@@ -5,3 +5,14 @@ data/output/Toolbox_run_output/
 
 # Data files
 local.yaml
+
+# Flow_data - ignore everything except Week_timestep_10_min.csv
+**/Flow_data/**
+!**/Flow_data/Week_timestep_10_min.csv
+
+# Shapefile - ignore everything except Example_input_shapefile (all extensions)
+**/Shapefile/**
+!**/Shapefile/Example_input_shapefile.*
+
+# Focus zone - ignore everything 
+**/Focus_zone/**
