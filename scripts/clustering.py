@@ -9,18 +9,18 @@ from sklearn.decomposition import PCA
 import numpy as np
 import geopandas as gpd
 
-from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH, OUTPUT_FOLDER_TIME
+from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH, OUTPUT_FOLDER_TIME, BASE_OUTPUT_PATH
 csv_path_to_metrics = FINAL_CSV_PATH
 shp_path_to_metrics = FINAL_SHP_PATH
 
-clustering_dir = os.path.join(OUTPUT_FOLDER_TIME, "Clustering")
+clustering_dir = os.path.join(BASE_OUTPUT_PATH, "Clustering")
 os.makedirs(clustering_dir, exist_ok=True)
 
 output_basepath = os.path.join(clustering_dir, os.path.basename(csv_path_to_metrics).replace(".csv", "_with_clusters.csv"))
 df = pd.read_csv(csv_path_to_metrics)
 
 target_habitat = HABITAT_TARGETS[0]
-short_basepath = os.path.join(clustering_dir, f"hab{target_habitat}")
+short_basepath = os.path.join(clustering_dir, f"h{target_habitat}")
 
 df[f"cluster_{target_habitat}"] = -1 # Initialize cluster column
 
@@ -33,7 +33,7 @@ def perform_clustering_target_habitat(
     # -----------------------------
     # Filter rows where habitat occurs
     # -----------------------------
-    prob_col = f"prob_hab_{target_habitat}"
+    prob_col = f"prob_h_{target_habitat}"
     filtered = df[df[prob_col] > 0].copy()
 
     # -----------------------------
@@ -41,11 +41,11 @@ def perform_clustering_target_habitat(
     # -----------------------------
     metrics = [prob_col]  # probability always included
     if METRICS_TO_COMPUTE.get("drift_percentile", False):
-        metrics.append(f"hab{target_habitat}_DriftPerc")
+        metrics.append(f"h{target_habitat}_driftP")
     if METRICS_TO_COMPUTE.get("shift_targ_daily", False):
-        metrics.append(f"hab{target_habitat}_shift_targ_daily")
+        metrics.append(f"h{target_habitat}_sh_suit")
     if METRICS_TO_COMPUTE.get("desiccation_risk", False):
-        metrics.append(f"hab{target_habitat}_DesicRisk")
+        metrics.append(f"h{target_habitat}_desicR")
 
     print(f"Metrics used for clustering: {metrics}")
 
