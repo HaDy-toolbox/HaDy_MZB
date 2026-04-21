@@ -1,5 +1,7 @@
 import pandas as pd
 import seaborn as sns
+import matplotlib
+matplotlib.use("Agg") # to avoid the plots from popping up during the run (and just save them instead)
 import matplotlib.pyplot as plt
 from scipy.stats import kruskal
 import scikit_posthocs as sp
@@ -7,6 +9,8 @@ import numpy as np
 import os
 import matplotlib.ticker as mtick
 import matplotlib.colors as mcolors
+import warnings
+warnings.filterwarnings("ignore")
 
 from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, BASE_OUTPUT_PATH, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_SURF_COLNAME
 
@@ -171,7 +175,7 @@ def plot_most_prob_intensity(
     ]
 
     H, p = kruskal(*groups)
-    print(f"Kruskal–Wallis: H={H:.3f}, p={p:.4f}")
+    # print(f"Kruskal–Wallis: H={H:.3f}, p={p:.4f}")
 
     # -----------------------------
     # Dunn posthoc
@@ -296,7 +300,7 @@ def plot_most_prob_intensity_target_hab(
     ]
 
     H, p = kruskal(*groups)
-    print(f"Kruskal–Wallis: H={H:.3f}, p={p:.4f}")
+    # print(f"Kruskal–Wallis: H={H:.3f}, p={p:.4f}")
 
     # -----------------------------
     # Dunn posthoc
@@ -1768,7 +1772,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
         else:
             # ---- Kruskal-Wallis
             H, p = kruskal(*groups)
-            print(f"\n{col} — Kruskal-Wallis: H={H:.3f}, p={p:.4f}")
+            # print(f"\n{col} — Kruskal-Wallis: H={H:.3f}, p={p:.4f}")
 
             # ---- Dunn post-hoc
             posthoc_df = sp.posthoc_dunn(
