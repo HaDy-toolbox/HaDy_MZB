@@ -1712,7 +1712,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
 
 def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds, save_dir):
     """
-    Compare desiccation metrics across gravel banks (ID_POLYGON) using
+    Compare desiccation metrics across gravel banks (id_focus) using
     Kruskal-Wallis and Dunn post-hoc tests, with boxplots per polygon.
     """
     # -------------------------------------------------------
@@ -1724,12 +1724,12 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
     df = df[df[f'prob_h_{target_habitat}'] > 0].copy()
 
     # Drop meshes with no polygon assignment
-    df = df.dropna(subset=["ID_POLYGON"])
+    df = df.dropna(subset=["id_focus"])
 
     # Convert to string for seaborn compatibility
-    df["ID_POLYGON"] = df["ID_POLYGON"].astype(int).astype(str)
+    df["id_focus"] = df["id_focus"].astype(int).astype(str)
 
-    polygon_order = sorted(df["ID_POLYGON"].unique())
+    polygon_order = sorted(df["id_focus"].unique())
     n_polygons = len(polygon_order)
 
     # Ensure output directory exists
@@ -1742,14 +1742,14 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
     # -------------------------------------------------------
     def _plot_one_metric(col, ylabel, filename):
 
-        data = df[["ID_POLYGON", col]].dropna()
+        data = df[["id_focus", col]].dropna()
 
         if data.empty:
             print(f"⚠️ No data for {col}, skipping.")
             return
 
         # Prepare groups
-        groups = [data[data["ID_POLYGON"] == pid][col].values for pid in polygon_order]
+        groups = [data[data["id_focus"] == pid][col].values for pid in polygon_order]
         groups = [g for g in groups if len(g) > 0]
 
         if len(groups) < 2:
@@ -1774,7 +1774,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             posthoc_df = sp.posthoc_dunn(
                 data,
                 val_col=col,
-                group_col="ID_POLYGON",
+                group_col="id_focus",
                 p_adjust="holm"
             )
 
@@ -1786,9 +1786,9 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
         fig, ax = plt.subplots(figsize=(max(8, n_polygons * 1.2), 6))
 
         sns.boxplot(
-            x="ID_POLYGON",
+            x="id_focus",
             y=col,
-            hue="ID_POLYGON",
+            hue="id_focus",
             data=data,
             order=polygon_order,
             # palette="tab10",
@@ -1803,7 +1803,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
         y_offset = data[col].max() * 0.03 if data[col].max() != 0 else 0.1
 
         for i, pid in enumerate(polygon_order):
-            group_vals = data[data["ID_POLYGON"] == pid][col]
+            group_vals = data[data["id_focus"] == pid][col]
             if len(group_vals) == 0:
                 continue
 
@@ -1863,7 +1863,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             fontsize=16
         )
 
-        ax.set_xlabel("Gravel bank (ID_POLYGON)", fontsize=16)
+        ax.set_xlabel("Gravel bank (id_focus)", fontsize=16)
         ax.set_ylabel(ylabel, fontsize=16)
         ax.tick_params(labelsize=14)
 
@@ -2069,8 +2069,7 @@ def main():
     
     plot_histograms_target_habitat(csv_path=csv_path, target_habitat=HABITAT_TARGETS, METRICS_TO_COMPUTE=METRICS_TO_COMPUTE, save_dir=OUTPUT_FOLDER_PLOTS, FOCUS_ON_ZONE=FOCUS_ON_ZONE)
     
-    df_check = pd.read_csv(csv_path)
-    if FOCUS_ON_ZONE and df_check["ID_POLYGON"].notna().any():
+    if FOCUS_ON_ZONE :
         plot_desiccation_by_polygon(
             csv_path=csv_path,
             target_habitat=HABITAT_TARGETS,
