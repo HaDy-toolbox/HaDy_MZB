@@ -83,6 +83,7 @@ def add_zone_flag_to_mesh(
 
     return joined #intead of a csv, we return the dataframe with the zone flag that will be used for habitat attribution
 
+# FUNCTION TO ADAPT TO CHANGE THE HABITAT CLASSIFICATION METHOD WHEN THE BOOLEAN FOCUS_ON_ZONE IS TRUE
 def attribute_habitat_types_zone_only(
     mesh_df,
     output_csv: str,
@@ -146,13 +147,14 @@ def attribute_habitat_types_zone_only(
 
     return df
 
-# function that takes as an input the cropped shp and renames the vel and depth columns, defines habitat type for each threshold and export as a .csv
+# FUNCTION TO ADAPT TO CHANGE THE HABITAT CLASSIFICATION METHOD WHEN THE BOOLEAN FOCUS_ON_ZONE IS FALSE (CURRENT-BASED CLASSIFICATION)
 def attribute_habitat_current_based(
     mesh_csv: str,
     output_csv: str,
     min_depth_threshold: float,
     HABITAT_VELOCITY_THRESHOLDS: dict
 ):
+    # function that takes as an input the cropped shp and renames the vel and depth columns, defines habitat type for each threshold and export as a .csv
     """
     Attributes habitat classes based on velocity thresholds (current-based logic).
 
@@ -170,7 +172,7 @@ def attribute_habitat_current_based(
     vel_prefix = "Vel_"
     q_suffixes = [c[len(vel_prefix):] for c in df.columns if c.startswith(vel_prefix)]
 
-    for q_str in q_suffixes:                  # q_str is '4' or '12_8', etc.
+    for q_str in q_suffixes:           # q_str is '4' or '12_8', etc.
         depth_col = f"Depth_{q_str}"
         vel_col   = f"Vel_{q_str}"
         hab_col   = f"Hab_{q_str}"
