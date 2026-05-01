@@ -16,7 +16,6 @@ from habitat_classification import prepare_csv, add_zone_flag_to_mesh, attribute
 # ==================================================================
 # =================================== Main ========================
 # ==================================================================
-print("Script started")
 shp_file_data = gpd.read_file(SHP_INPUT_FILE) #initial shapefile having all the data for each mesh and each discharge. The area extent is based on the configuration
 
 discharges_values = get_discharge_values(shp_file_data, SHP_DEPTH_PREFIX, SHP_VEL_PREFIX)

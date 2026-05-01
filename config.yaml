@@ -3,7 +3,7 @@
 # MANDATORY PARAMETERS
 
 # --- Input files ---
-input_shp_filename: "Example_input_shapefile.shp" # name of the input shapefile located in the data/input/Shapefile folder 
+input_shp_filename: "example_input_shapefile.shp" # name of the input shapefile located in the data/input/Shapefile folder 
 crs: "EPSG:2056"   # CSR of the GIS project 
 input_flow_timeseries_filename: "Week_timestep_10_min.csv" # name of the flow time-series input file located in the data/input/Flow_data folder. 
 time_step_min: 10.0   # timestep of the flow time-series in minutes (float, e.g., 10.0 for a 10 minute timestep)

@@ -12,10 +12,7 @@ local.yaml
 
 # Shapefile - ignore everything except Example_input_shapefile (all extensions)
 **/Shapefile/**
-!**/Shapefile/Example_input_shapefile.*
+!**/Shapefile/example_input_shapefile.*
 
 # Focus zone - ignore everything 
 **/Focus_zone/**
-
-environmenttest.yml
-Toolbox_run_output_before_new_env
