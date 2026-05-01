@@ -16,3 +16,6 @@ local.yaml
 
 # Focus zone - ignore everything 
 **/Focus_zone/**
+
+environmenttest.yml
+Toolbox_run_output_before_new_env
