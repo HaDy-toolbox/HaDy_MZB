@@ -698,7 +698,7 @@ def plot_habitat_availability_per_discharge(
         raise ValueError("No habitat columns starting with 'Hab_' found.")
 
     # Extract discharge values while keeping dataframe order
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+    discharges = [float(col.replace("Hab_", "").replace("_", ".")) for col in habitat_columns]
 
     # -----------------------------
     # Exclude meshes that are -1 in all habitat columns
@@ -818,7 +818,7 @@ def plot_habitat_availability_per_discharge_target_hab(
         raise ValueError("No habitat columns starting with 'Hab_' found.")
 
     # Extract discharge values
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+    discharges = [float(col.replace("Hab_", "").replace("_", ".")) for col in habitat_columns]
 
     # -----------------------------
     # Remove meshes that are -1 everywhere
@@ -945,7 +945,7 @@ def plot_habitat_availability_per_discharge_surface(
     if len(habitat_columns) == 0:
         raise ValueError("No habitat columns starting with 'Hab_' found.")
 
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+    discharges = [float(col.replace("Hab_", "").replace("_", ".")) for col in habitat_columns]
 
     # -----------------------------
     # Exclude meshes that are -1 everywhere
@@ -1074,7 +1074,7 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     if len(habitat_columns) == 0:
         raise ValueError("No habitat columns starting with 'Hab_' found.")
 
-    discharges = [float(col.replace("Hab_", "")) for col in habitat_columns]
+    discharges = [float(col.replace("Hab_", "").replace("_", ".")) for col in habitat_columns]
 
     # -----------------------------
     # Remove meshes that are -1 everywhere
