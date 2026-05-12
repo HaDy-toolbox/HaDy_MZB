@@ -1376,7 +1376,7 @@ def plot_histograms_target_habitat(csv_path, target_habitat, METRICS_TO_COMPUTE,
                 ax.text(x[i], percentages[i]+1, f"{percentages[i]:.1f}%", ha='center', va='bottom', fontsize=14)
         
         ax.set_ylim(0, 100)
-        ax.set_xlabel('Habitat shifts', fontsize=20)
+        ax.set_xlabel('Habitat daily shifts', fontsize=20)
         ax.set_ylabel('Percentage of \npatches', fontsize=20)
         
         # Set x-axis labels
