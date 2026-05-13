@@ -87,7 +87,7 @@ SHP_VEL_PREFIX = _config["shp_vel_prefix"]
 SHP_X_COLNAME = _config["shp_x_colname"]
 SHP_Y_COLNAME = _config["shp_y_colname"]
 SHP_ID_COLNAME = _config["shp_id_colname"]
-SHP_SURF_COLNAME = _config["shp_surf_colname"]
+SHP_AREA_COLNAME = _config["shp_area_colname"]
 
 # --- Flags ---
 START_AT_FIRST_OCCURENCE = _config["start_at_first_occurrence"]

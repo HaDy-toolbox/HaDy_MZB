@@ -3,7 +3,7 @@ import os
 
 #variables
 from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, ZONE_PONTE_SHP, ZONE_PONTE_FIELD, CRS, DEPTH_THRESHOLD, START_AT_FIRST_OCCURENCE, FOCUS_ON_ZONE
-from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_SURF_COLNAME
+from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME
 from variables_from_config import OUTPUT_FOLDER_TIME, SHP_INPUT_FILE, DATA_DIR_HYDRO, TYPICAL_FLOW_FILENAME
 
 
@@ -44,7 +44,7 @@ prepared_gdf = prepare_wetted_shapefile_for_relevant_discharges(
     depth_threshold=DEPTH_THRESHOLD,
     output_shp_path=output_prepared_shp,
     id_col_name=SHP_ID_COLNAME,
-    surf_col_name=SHP_SURF_COLNAME,
+    area_col_name=SHP_AREA_COLNAME,
     x_col_name=SHP_X_COLNAME,
     y_col_name=SHP_Y_COLNAME
 )

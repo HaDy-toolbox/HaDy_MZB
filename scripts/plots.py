@@ -12,7 +12,7 @@ import matplotlib.colors as mcolors
 import warnings
 warnings.filterwarnings("ignore")
 
-from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, BASE_OUTPUT_PATH, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_SURF_COLNAME
+from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, BASE_OUTPUT_PATH, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_AREA_COLNAME
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
 
@@ -113,7 +113,7 @@ def filter_meshes_with_target_habitat(df, habitat_target):
 
 # PLOT FUNCTIONS ----------------------------------------------------------------------------------------------------------------------------------------------------
 # ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - Plot most probable habitat type and related intensity
+# FUNCTION: ALL MESHES IN SIMULATED ZONE - Plot most probable habitat type and related intensity
 # ==========================================================
 def plot_most_prob_intensity(
     csv_path,
@@ -206,7 +206,7 @@ def plot_most_prob_intensity(
 
     plt.xlabel("Most probable habitat type", fontsize=20)
     plt.ylabel("Associated Probability", fontsize=20)
-    plt.title("Probability distribution per most probable habitat type\n for the entire simulated domain", fontsize=22)
+    plt.title("Probability distribution per most probable habitat type\n for the entire simulated zone", fontsize=22)
 
     plt.xticks(rotation=45, ha="right", fontsize=16)
     plt.yticks(fontsize=18)
@@ -360,7 +360,7 @@ def plot_most_prob_intensity_target_hab(
     # plt.show()
 
 # ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - Percentage of most probable habitat types
+# FUNCTION: ALL MESHES IN SIMULATED ZONE - Percentage of most probable habitat types
 # ==========================================================
 def plot_most_prob_percentages(
     csv_path,
@@ -417,7 +417,7 @@ def plot_most_prob_percentages(
 
     plt.xlabel("Most probable habitat type", fontsize=18)
     plt.ylabel("Percentage of patches (%)", fontsize=18)
-    plt.title("Percentage of most probable habitat types across all patches \n for the entire simulated domain", fontsize=20)
+    plt.title("Percentage of most probable habitat types across all patches \n for the entire simulated zone", fontsize=20)
 
     plt.xticks(ticks=x, labels=labels, rotation=30, ha='right', fontsize=14)
     plt.yticks(fontsize=14)
@@ -504,7 +504,7 @@ def plot_most_prob_percentages_target_hab(
     # plt.show()
 
 # ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - Horizontal stacked bar of dominant habitat types
+# FUNCTION: ALL MESHES IN SIMULATED ZONE - Horizontal stacked bar of dominant habitat types
 # ==========================================================
 def plot_most_prob_horizontal(
     csv_path,
@@ -562,7 +562,7 @@ def plot_most_prob_horizontal(
     ax.set_xlim(0, 100)
     ax.set_ylim(-0.5, 0.5)
     ax.set_yticks([])
-    ax.set_xlabel("Percentage of the entire simulated domain", fontsize=18)
+    ax.set_xlabel("Percentage of the entire simulated zone", fontsize=18)
     ax.set_title("Dominant habitat type distribution", fontsize=20)
     ax.legend(
         loc='center left',
@@ -665,7 +665,7 @@ def plot_most_prob_horizontal_target_hab(
     # plt.show()
 
 # ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN PERCENTAGE OF MESHES - Habitat availability per discharge (stacked %)
+# FUNCTION: ALL MESHES IN SIMULATED ZONE - IN PERCENTAGE OF MESHES - Habitat availability per discharge (stacked %)
 # ==========================================================
 def plot_habitat_availability_per_discharge(
     csv_path,
@@ -765,7 +765,7 @@ def plot_habitat_availability_per_discharge(
     plt.yticks(fontsize=16)
 
     plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
-    plt.ylabel("Habitat availability\n[% of the simulated domain]", fontsize=18, labelpad=15)
+    plt.ylabel("Habitat availability\n[% of the simulated zone]", fontsize=18, labelpad=15)
 
     plt.title("Habitat availability per discharge", fontsize=20, pad=20)
 
@@ -914,9 +914,9 @@ def plot_habitat_availability_per_discharge_target_hab(
     # plt.show()
 
 # ==========================================================
-# FUNCTION: ALL MESHES IN SIMULATED DOMAIN - IN SURFACE - Habitat availability per discharge (stacked %)
+# FUNCTION: ALL MESHES IN SIMULATED ZONE - IN AREA - Habitat availability per discharge (stacked %)
 # ==========================================================
-def plot_habitat_availability_per_discharge_surface(
+def plot_habitat_availability_per_discharge_area(
     csv_path,
     habitat_labels_dict_FOCUS_ZONE_FALSE,
     habitat_labels_dict_FOCUS_ZONE_TRUE,
@@ -953,15 +953,15 @@ def plot_habitat_availability_per_discharge_surface(
     valid_rows = ~(df[habitat_columns] == -1).all(axis=1)
     df_valid = df.loc[valid_rows]
 
-    # Total surface of the simulated domain
-    total_surface = df_valid[SHP_SURF_COLNAME].sum()
+    # Total area of the simulated zone
+    total_area = df_valid[SHP_AREA_COLNAME].sum()
 
     # -----------------------------
-    # Compute habitat surface
+    # Compute habitat area
     # -----------------------------
     habitat_data = {
         ht: [
-            df_valid.loc[df_valid[col] == ht, SHP_SURF_COLNAME].sum()
+            df_valid.loc[df_valid[col] == ht, SHP_AREA_COLNAME].sum()
             for col in habitat_columns
         ]
         for ht in habitat_range
@@ -978,7 +978,7 @@ def plot_habitat_availability_per_discharge_surface(
     for ht in habitat_range:
 
         values = habitat_data[ht]
-        percent_values = [v / total_surface * 100 for v in values]
+        percent_values = [v / total_area * 100 for v in values]
 
         plt.bar(
             range(len(x)),
@@ -1019,7 +1019,7 @@ def plot_habitat_availability_per_discharge_surface(
     plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
 
     plt.ylabel(
-        "Habitat availability\n[% of the simulated surface]",
+        "Habitat availability\n[% of the simulated area]",
         fontsize=18,
         labelpad=15
     )
@@ -1041,9 +1041,9 @@ def plot_habitat_availability_per_discharge_surface(
     # plt.show()
 
 # ==========================================================
-# FUNCTION: TARGET HABITAT - IN SURFACE - Habitat availability per discharge (stacked %)
+# FUNCTION: TARGET HABITAT - IN area - Habitat availability per discharge (stacked %)
 # ==========================================================
-def plot_habitat_availability_per_discharge_surface_target_hab(
+def plot_habitat_availability_per_discharge_area_target_hab(
     csv_path,
     habitat_labels_dict_FOCUS_ZONE_FALSE,
     habitat_labels_dict_FOCUS_ZONE_TRUE,
@@ -1088,15 +1088,15 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     has_target = (df_valid[habitat_columns] == target_habitat).any(axis=1)
     df_valid = df_valid.loc[has_target]
 
-    # Total surface of filtered patches
-    total_surface = df_valid[SHP_SURF_COLNAME].sum()
+    # Total area of filtered patches
+    total_area = df_valid[SHP_AREA_COLNAME].sum()
 
     # -----------------------------
-    # Compute habitat surface
+    # Compute habitat area
     # -----------------------------
     habitat_data = {
         ht: [
-            df_valid.loc[df_valid[col] == ht, SHP_SURF_COLNAME].sum()
+            df_valid.loc[df_valid[col] == ht, SHP_AREA_COLNAME].sum()
             for col in habitat_columns
         ]
         for ht in habitat_range
@@ -1113,7 +1113,7 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     for ht in habitat_range:
 
         values = habitat_data[ht]
-        percent_values = [v / total_surface * 100 for v in values]
+        percent_values = [v / total_area * 100 for v in values]
 
         bars = plt.bar(
             range(len(x)),
@@ -1154,7 +1154,7 @@ def plot_habitat_availability_per_discharge_surface_target_hab(
     plt.yticks(fontsize=16)
     plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
     plt.ylabel(
-        "Habitat availability\n[% of the surface of patches experiencing the target habitat\n during the flow time-series]",
+        "Habitat availability\n[% of the area of patches experiencing the target habitat\n during the flow time-series]",
         fontsize=18,
         labelpad=15
     )
@@ -2013,7 +2013,7 @@ def main():
     )
 
     # ---- Fourth plot: horizontal stacked bar
-    output_hab_discharge = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain.png")
+    output_hab_discharge = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_zone.png")
     plot_habitat_availability_per_discharge(
     csv_path=csv_path_static,
     habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
@@ -2036,19 +2036,19 @@ def main():
         save_path=output_hab_discharge_target_hab
     )
     
-    output_hab_discharge_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_surface.png")
-    plot_habitat_availability_per_discharge_surface(
+    output_hab_discharge_area = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_zone_area.png")
+    plot_habitat_availability_per_discharge_area(
         csv_path=csv_path_static,
         habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
         habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
         habitat_colors_dict=habitat_colors_dict,
         focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
-        save_path=output_hab_discharge_surface
+        save_path=output_hab_discharge_area
     )
 
-    output_hab_discharge_target_hab_surface = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_domain_target_hab_surface.png")
-    plot_habitat_availability_per_discharge_surface_target_hab(
+    output_hab_discharge_target_hab_area = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_availability_per_discharge_simulated_zone_target_hab_area.png")
+    plot_habitat_availability_per_discharge_area_target_hab(
         csv_path=csv_path_static,
         habitat_labels_dict_FOCUS_ZONE_FALSE=habitat_labels_dict_FOCUS_ZONE_FALSE,
         habitat_labels_dict_FOCUS_ZONE_TRUE=habitat_labels_dict_FOCUS_ZONE_TRUE,
@@ -2056,7 +2056,7 @@ def main():
         focus_on_zone=FOCUS_ON_ZONE,
         number_of_habitats=NUMBER_OF_HABITATS,
         target_habitat=HABITAT_TARGETS,
-        save_path=output_hab_discharge_target_hab_surface
+        save_path=output_hab_discharge_target_hab_area
     )
 
     output_hab_prob_distrib_target_hab = os.path.join(OUTPUT_FOLDER_PLOTS,"habitat_probabilities_target_hab.png")

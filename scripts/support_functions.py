@@ -61,13 +61,13 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     depth_threshold,
     output_shp_path,
     id_col_name,
-    surf_col_name,
+    area_col_name,
     x_col_name,
     y_col_name
 ):
     """
     Prepare a shapefile for analysis by:
-    1) Keeping only ID, x, y, surface, geometry, and hoX/vitX columns for relevant discharges
+    1) Keeping only ID, x, y, area, geometry, and hoX/vitX columns for relevant discharges
     2) Replacing missing values with 0
     3) Keeping only meshes wetted at the maximum discharge
 
@@ -78,7 +78,7 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     - velocity_prefix: prefix for velocity columns (e.g. 'vit')
     - depth_threshold: minimum depth defining wetted area (m)
     - output_shp_path: output shapefile path
-    - id_col_name, surf_col_name, x and y column names
+    - id_col_name, area_col_name, x and y column names
 
     Returns:
     - filtered GeoDataFrame
@@ -87,7 +87,7 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     # --------------------------------------------------
     # 1. Check mandatory columns
     # --------------------------------------------------
-    required_cols = [id_col_name, surf_col_name, x_col_name, y_col_name]
+    required_cols = [id_col_name, area_col_name, x_col_name, y_col_name]
     for col in required_cols:
         if col not in gdf.columns:
             raise ValueError(f"Column '{col}' not found in shapefile")
@@ -114,7 +114,7 @@ def prepare_wetted_shapefile_for_relevant_discharges(
     # 3. Subset columns
     # --------------------------------------------------
     columns_to_keep = (
-        [id_col_name, surf_col_name, x_col_name, y_col_name]
+        [id_col_name, area_col_name, x_col_name, y_col_name]
         + discharge_cols
         + ['geometry']
     )
@@ -176,7 +176,7 @@ def join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
     """
     mesh_gdf = gpd.read_file(mesh_file) # Load base mesh geometry
     results_df = pd.read_csv(csv_file) # Load results
-    results_df = results_df.drop(columns=["x", "y", "surface"], errors="ignore")
+    results_df = results_df.drop(columns=["x", "y", "area"], errors="ignore")
     mesh_with_results = mesh_gdf.merge(results_df, on=id_col, how="left") # Merge on the specified ID column
 
     

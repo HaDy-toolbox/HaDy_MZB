@@ -12,7 +12,7 @@ time_step_min: 10.0   # timestep of the flow time-series in minutes (float, e.g.
 shp_id_colname: "id"
 shp_x_colname: "x"
 shp_y_colname: "y"
-shp_surf_colname: "area"
+shp_area_colname: "area"
 shp_depth_prefix: "d_"
 shp_vel_prefix: "v_"
 
@@ -96,7 +96,8 @@ zone_ponte_field: "banc_galet" # name to give to this focus zone in output files
 # final_shp_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Metric_files/metrics_Long_small.shp" # path to the output shapefile containing the metrics values
 # static_habitat_csv_path: "C:/Users/lecrivau/source/repos/HaDy_MZB/data/output/Long_small/Habitat_classification/habitat_classification.csv" # path to the csv file containing the habitat classification of each mesh
 
-base_output_path: "Example_output" # output folder (located in data/output folder) where data to analyze is located in. 
+# base_output_path: "Example_output" # output folder (located in data/output folder) where data to analyze is located in. 
+base_output_path: "Toolbox_run_output"
 
 final_csv_path: "Metric_files/metrics.csv"
 final_shp_path: "Metric_files/metrics.shp"
