@@ -81,9 +81,9 @@ drift_thresholds: # Example of drift thresholds based on current velocity thresh
 # OPTIONAL: ADVANCED PARAMETERS
 focus_on_zone: false # "true" if focus set on a specific zone (e.g., gravel bancs for eggs desiccation), "false" otherwise (by default)
 # if set to "true", uncomment the following parameters and fill them in according to the focus zone of interest. If set to "false", these parameters will be ignored and can be left as is.
-# zone_interest_filename: "banc_de_galet_v13feb2026.shp" # name of the focus zone shapefile located in the data/input/Focus_zone folder 
-# id_polygon_zone_interest: "ID_POLYGON" # shapefile's id column name of the polygons of interest (e.g., individual gravel bar id) /!\ This column needs to be named differently than the shp_id_colname id in the input shapefile. Rename the column if needed.
-# zone_ponte_field: "banc_galet" # name to give to this focus zone in output files (value of 1 if mesh part of the focus zone, 0 if not)
+zone_interest_filename: "banc_de_galet_v13feb2026.shp" # name of the focus zone shapefile located in the data/input/Focus_zone folder 
+id_polygon_zone_interest: "ID_POLYGON" # shapefile's id column name of the polygons of interest (e.g., individual gravel bar id) /!\ This column needs to be named differently than the shp_id_colname id in the input shapefile. Rename the column if needed.
+zone_ponte_field: "banc_galet" # name to give to this focus zone in output files (value of 1 if mesh part of the focus zone, 0 if not)
 # what is expected to change if focus_on_zone is true: 
 # - habitat attribution method is different and to be defnied by the user (see example function attribute_habitat_types_zone_only in habitat_attribution.py: habitat type -1 if not in focus zone, 0 if dry, 1 if wet but water depth or current velocity conditions for ovipositionare not met, 2 if suitable for egg desposition)
 # - metrics are calculated only for the meshes that experience the target habitat type and are part of the focus zone (e.g., egg deposition suitable meshes of gravel bars) and not for the whole zone
