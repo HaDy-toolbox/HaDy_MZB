@@ -1761,28 +1761,10 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             return
 
         # ---------------------------------------------------
-        # Check for identical values
+        # Statistical tests removed — H/p no longer computed
         # ---------------------------------------------------
         all_values = np.concatenate(groups)
-
-        if np.all(all_values == all_values[0]):
-            print(f"\n{col} — All values identical across polygons → skipping statistical test")
-            H, p = np.nan, np.nan
-            letters = {}
-        else:
-            # ---- Kruskal-Wallis
-            H, p = kruskal(*groups)
-            # print(f"\n{col} — Kruskal-Wallis: H={H:.3f}, p={p:.4f}")
-
-            # ---- Dunn post-hoc
-            posthoc_df = sp.posthoc_dunn(
-                data,
-                val_col=col,
-                group_col="id_focus",
-                p_adjust="holm"
-            )
-
-            letters = compact_letter_assignment(posthoc_df)
+        H, p = np.nan, np.nan
 
         # ---------------------------------------------------
         # Plot
@@ -1802,27 +1784,6 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             legend=False,
             ax=ax
         )
-
-        # ---- Add compact letters
-        y_offset = data[col].max() * 0.03 if data[col].max() != 0 else 0.1
-
-        for i, pid in enumerate(polygon_order):
-            group_vals = data[data["id_focus"] == pid][col]
-            if len(group_vals) == 0:
-                continue
-
-            Q3 = group_vals.quantile(0.75)
-
-            ax.text(
-                i,
-                Q3 + y_offset,
-                letters.get(pid, ""),
-                ha='center',
-                va='bottom',
-                fontsize=14,
-                fontweight='bold',
-                bbox=dict(facecolor='white', edgecolor='none', alpha=0.8)
-            )
 
         # ---- Threshold lines (only for duration metrics)
         if col.endswith(("_dry_med", "_dry_max")):
@@ -1853,17 +1814,17 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
                         fontsize=11,
                         color='grey'
                     )
+                    
+        # ---- Force integer y-axis ticks 1–4 for risk metrics
+        if col.endswith("R"):
+            ax.set_ylim(0.5, 4.5)
+            ax.set_yticks([1, 2, 3, 4])
 
         # ---------------------------------------------------
         # Title with improved feedback
         # ---------------------------------------------------
-        if np.isnan(H):
-            title_stats = "(No variability across polygons)"
-        else:
-            title_stats = f"(Kruskal-Wallis H={H:.2f}, p={p:.4f})"
-
         ax.set_title(
-            f"{ylabel} per gravel bank\n{title_stats}",
+            f"{ylabel} per gravel bank",
             fontsize=16
         )
 
@@ -1878,27 +1839,6 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
         plt.savefig(save_path, dpi=600, transparent=True)
         plt.close()
 
-        # ---------------------------------------------------
-        # Store summary results
-        # ---------------------------------------------------
-        if np.isnan(H):
-            summary_results.append({
-                "metric": col,
-                "n_polygons": len(groups),
-                "variability": False,
-                "kruskal_H": np.nan,
-                "p_value": np.nan,
-                "significant": False
-            })
-        else:
-            summary_results.append({
-                "metric": col,
-                "n_polygons": len(groups),
-                "variability": True,
-                "kruskal_H": H,
-                "p_value": p,
-                "significant": p < 0.05
-            })
     # -------------------------------------------------------
     # Metrics to plot
     # -------------------------------------------------------
@@ -1918,15 +1858,6 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
         else:
             print(f"⚠️ Column {col} not found in CSV, skipping.")
 
-    # -------------------------------------------------------
-    # Save summary table
-    # -------------------------------------------------------
-    summary_df = pd.DataFrame(summary_results)
-
-    summary_path = os.path.join(save_dir, "desiccation_summary_statistics.csv")
-    summary_df.to_csv(summary_path, index=False)
-
-    print(f"\n📊 Summary statistics saved to: {summary_path}")
 # ==========================================================
 # MAIN
 # ==========================================================
