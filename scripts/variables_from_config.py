@@ -76,10 +76,16 @@ TIMESTEPS_PER_DAY = int((24 * 60) / TIME_STEP_MIN)
 DATA_DIR_HYDRO = os.path.join(INPUT_FOLDER, "Flow_data")
 
 # --- Zone polygons ---
-ZONE_PONTE_SHP = os.path.join(INPUT_FOLDER, "Focus_zone", _config["zone_interest_filename"])
-ZONE_PONTE_FIELD = _config["zone_ponte_field"]
-FOCUS_ON_ZONE = _config["focus_on_zone"]
-ID_POLYGON = _config["id_polygon_zone_interest"]
+FOCUS_ON_ZONE = _config["focus_on_zone"]  # always mandatory, keep bracket access
+
+if FOCUS_ON_ZONE:
+    ZONE_PONTE_SHP = os.path.join(INPUT_FOLDER, "Focus_zone", _config["zone_interest_filename"])
+    ZONE_PONTE_FIELD = _config["zone_ponte_field"]
+    ID_POLYGON = _config["id_polygon_zone_interest"]
+else:
+    ZONE_PONTE_SHP = None
+    ZONE_PONTE_FIELD = None
+    ID_POLYGON = None
 
 # --- Shapefile columns ---
 SHP_DEPTH_PREFIX = _config["shp_depth_prefix"]
