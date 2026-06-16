@@ -1825,7 +1825,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             )
 
         # ---- Threshold lines (only for duration metrics)
-        if "h" in col:
+        if col.endswith(("_dry_med", "_dry_max")):
             threshold_labels = {
                 "desicc_1": "Risk 1→2",
                 "desicc_2": "Risk 2→3",
@@ -1867,7 +1867,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
             fontsize=16
         )
 
-        ax.set_xlabel("Gravel bank (id_focus)", fontsize=16)
+        ax.set_xlabel("Gravel bank", fontsize=16)
         ax.set_ylabel(ylabel, fontsize=16)
         ax.tick_params(labelsize=14)
 

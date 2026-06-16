@@ -1,4 +1,5 @@
 scripts/__pycache__ 
+scripts/table_and_plots_by_bank.py
 
 # Data files
 data/output/Toolbox_run_output/
