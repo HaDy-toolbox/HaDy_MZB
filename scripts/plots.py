@@ -12,7 +12,7 @@ import matplotlib.colors as mcolors
 import warnings
 warnings.filterwarnings("ignore")
 
-from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, BASE_OUTPUT_PATH, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_AREA_COLNAME
+from variables_from_config import DESICCATION_THRESHOLDS, FOCUS_ON_ZONE, HABITAT_TARGETS, OUTPUT_FOLDER, OUTPUT_FOLDER_TIME, METRICS_TO_COMPUTE, NUMBER_OF_HABITATS, STATIC_HABITAT_CSV_PATH, FINAL_CSV_PATH, SHP_AREA_COLNAME
 
 HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat type in focus (the first one of the list, if a list is provided)
 
@@ -1863,7 +1863,7 @@ def plot_desiccation_by_polygon(csv_path, target_habitat, desiccation_thresholds
 # ==========================================================
 def main():
 
-    OUTPUT_FOLDER_PLOTS = os.path.join(BASE_OUTPUT_PATH, "Plots")
+    OUTPUT_FOLDER_PLOTS = os.path.join(OUTPUT_FOLDER_TIME, "Plots")
     os.makedirs(OUTPUT_FOLDER_PLOTS, exist_ok=True)
 
     
