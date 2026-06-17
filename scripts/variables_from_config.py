@@ -80,11 +80,11 @@ FOCUS_ON_ZONE = _config["focus_on_zone"]  # always mandatory, keep bracket acces
 
 if FOCUS_ON_ZONE:
     ZONE_PONTE_SHP = os.path.join(INPUT_FOLDER, "Focus_zone", _config["zone_interest_filename"])
-    ZONE_PONTE_FIELD = _config["zone_ponte_field"]
+    ZONE_INTEREST_FIELD = _config["zone_interest_field"]
     ID_POLYGON = _config["id_polygon_zone_interest"]
 else:
     ZONE_PONTE_SHP = None
-    ZONE_PONTE_FIELD = None
+    ZONE_INTEREST_FIELD = None
     ID_POLYGON = None
 
 # --- Shapefile columns ---

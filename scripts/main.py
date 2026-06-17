@@ -2,7 +2,7 @@ import geopandas as gpd
 import os
 
 #variables
-from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, ZONE_PONTE_SHP, ZONE_PONTE_FIELD, CRS, DEPTH_THRESHOLD, START_AT_FIRST_OCCURENCE, FOCUS_ON_ZONE
+from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, ZONE_PONTE_SHP, ZONE_INTEREST_FIELD, CRS, DEPTH_THRESHOLD, START_AT_FIRST_OCCURENCE, FOCUS_ON_ZONE
 from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME
 from variables_from_config import OUTPUT_FOLDER_TIME, SHP_INPUT_FILE, DATA_DIR_HYDRO, TYPICAL_FLOW_FILENAME
 
@@ -68,7 +68,7 @@ if FOCUS_ON_ZONE:
     df_with_zones = add_zone_flag_to_mesh(
         mesh_csv=output_csv,
         polygon_shp=ZONE_PONTE_SHP,
-        zone_col=ZONE_PONTE_FIELD,
+        zone_col=ZONE_INTEREST_FIELD,
         crs=CRS,
     )
 
@@ -77,7 +77,7 @@ if FOCUS_ON_ZONE:
     attribute_habitat_types_zone_only(
         mesh_df=df_with_zones,
         output_csv=output_csv_habitat_classification_focus_on_zone,
-        zone_col=ZONE_PONTE_FIELD,
+        zone_col=ZONE_INTEREST_FIELD,
         min_depth_threshold=DEPTH_THRESHOLD,
         max_depth_threshold = 0.30, #in m
         velocity_range=(0.05, 0.75) #in m/s

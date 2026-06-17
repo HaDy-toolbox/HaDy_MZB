@@ -6,7 +6,7 @@ from itertools import groupby
 from variables_from_config import HABITAT_TARGETS
 from variables_from_config import TIME_STEP_MIN
 from variables_from_config import TIMESTEPS_PER_DAY
-from variables_from_config import ZONE_PONTE_FIELD
+from variables_from_config import ZONE_INTEREST_FIELD
 from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME 
 from variables_from_config import METRICS_TO_COMPUTE
 from variables_from_config import UP_RAMP, DRIFT_THRESHOLDS_WITH_RAMP
@@ -441,7 +441,7 @@ def compute_mesh_metrics_for_row_boolean(
         "x": row[SHP_X_COLNAME],
         "y": row[SHP_Y_COLNAME],
         "area": row[SHP_AREA_COLNAME],
-        "focus_zone": row.get(ZONE_PONTE_FIELD, 0),
+        "focus_zone": row.get(ZONE_INTEREST_FIELD, 0),
         "id_focus": row.get(ID_POLYGON, np.nan) 
     }
 
