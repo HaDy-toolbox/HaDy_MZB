@@ -22,12 +22,13 @@ depth_threshold: 0.01   # minimum water depth (in meters) to consider a mesh wet
 
 habitat_velocity_thresholds: # example of habitat classification thresholds based on current velocity and water depth (see user guide)
   # habitat type number 0 if dry conditions (water depth < depth_threshold)
-  class_1: 0.05 # habitat type number 1 if v < 0.05 m/s
-  class_2: 0.25 # habitat type number 2 if 0.05 ≤ v < 0.25 m/s
-  class_3: 0.75 # habitat type number 3 if 0.25 ≤ v < 0.75 m/s
-  class_4: 1.5 # habitat type number 4 if 0.75 ≤ v < 1.5 m/s
-  class_5: 2.5 # habitat type number 5 if 1.5 ≤ v < 2.5 m/s
+  class_1: 0.05 # habitat type number 1 if v < class_1 m/s
+  class_2: 0.25 # habitat type number 2 if class_1 ≤ v < class_2 m/s
+  class_3: 0.75 # habitat type number 3 if class_2 ≤ v < class_3 m/s
+  class_4: 1.5 # habitat type number 4 if class_3 ≤ v < class_4 m/s
+  class_5: 2.5 # habitat type number 5 if class_4 ≤ v < class_5 m/s
   # habitat type number 6 if v ≥ class_5 m/s
+  # if you change the number of habitats, please adapt the attribute_habitat_current_based function in habitat_attribution.py and the number_of_habitats parameter below accordingly
 number_of_habitats: 7 # Integer : the number of habitats that you have based on this habitat classification (e.g., 7 for the previous classification: from 0 = dry to 6 = v ≥ class_5 m/s)
 
 # ===============================================================
