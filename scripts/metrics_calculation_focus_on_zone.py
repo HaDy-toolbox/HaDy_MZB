@@ -289,10 +289,10 @@ def compute_habitat_metrics(
     # Target habitat stats
     stats_target = compute_habitat_seq_stats(hab_seq, target_val=HABITAT_TARGETS[0], time_step_min=TIME_STEP_MIN)
     results["nb_seq"] = stats_target["nb_seq"]
-    results["dur_max"]  = stats_target["dur_max"]
-    results["dur_med"]     = stats_target["dur_med"]
-    results["dur_q1"]         = stats_target["dur_q1"]
-    results["dur_q3"]         = stats_target["dur_q3"]
+    results["dur_max"]= stats_target["dur_max"]
+    results["dur_med"]= stats_target["dur_med"]
+    results["dur_q1"] = stats_target["dur_q1"]
+    results["dur_q3"] = stats_target["dur_q3"]
 
     # -------------------------
     # SHIFTS
