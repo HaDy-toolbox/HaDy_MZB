@@ -1,6 +1,6 @@
 import geopandas as gpd
 import pandas as pd
-
+import re 
 
 def prepare_csv(prepared_shp, output_csv, depth_prefix, vel_prefix):
     """
@@ -147,32 +147,53 @@ def attribute_habitat_types_zone_only(
 
     return df
 
+
 # FUNCTION TO ADAPT TO CHANGE THE HABITAT CLASSIFICATION METHOD WHEN THE BOOLEAN FOCUS_ON_ZONE IS FALSE (CURRENT-BASED CLASSIFICATION)
 def attribute_habitat_current_based(
     mesh_csv: str,
     output_csv: str,
     min_depth_threshold: float,
-    HABITAT_VELOCITY_THRESHOLDS: dict
-):
-    # function that takes as an input the cropped shp and renames the vel and depth columns, defines habitat type for each threshold and export as a .csv
+    HABITAT_VELOCITY_THRESHOLDS: dict,
+    number_of_habitats: int
+    ):
     """
     Attributes habitat classes based on velocity thresholds (current-based logic).
 
     Habitat definition per discharge:
     0 : dry cell (depth < min_depth_threshold)
-     1–6 : velocity-based classes for wetted cells
+    1..N-1 : velocity-based classes, bounded by sorted thresholds in
+             HABITAT_VELOCITY_THRESHOLDS (class_1, class_2, ..., class_{N-1})
+    N : wetted cell with velocity >= last threshold
 
-    Velocity classes are defined using HABITAT_VELOCITY_THRESHOLDS:
-        class_1, class_2, class_3, class_4, class_5
+    The number of habitat classes is inferred from the number of
+    class_X keys in HABITAT_VELOCITY_THRESHOLDS (N = len(thresholds) + 1).
+    If number_of_habitats is provided, it is checked against this inferred
+    value for consistency.
     """
 
     df = pd.read_csv(mesh_csv)
 
-    # Extract the raw suffix (e.g. '4', '12_8') — no float conversion needed
+    # Sort thresholds by their class index (class_1, class_2, ...) to guarantee order
+    sorted_items = sorted(
+        HABITAT_VELOCITY_THRESHOLDS.items(),
+        key=lambda kv: int(re.search(r"\d+", kv[0]).group())
+    )
+    thresholds = [v for _, v in sorted_items]  # e.g. [0.05, 0.25, 0.75, 1.5, 2.5]
+
+    inferred_n_habitats = len(thresholds) + 1  # +1 for the "above last threshold" class
+    # (habitat 0 = dry is separate from this count of wetted classes)
+    total_habitats = inferred_n_habitats + 1   # +1 again to include dry (0)
+
+    if number_of_habitats is not None and number_of_habitats != total_habitats:
+        raise ValueError(
+            f"number_of_habitats ({number_of_habitats}) does not match thresholds "
+            f"provided ({total_habitats} inferred from HABITAT_VELOCITY_THRESHOLDS)."
+        )
+
     vel_prefix = "Vel_"
     q_suffixes = [c[len(vel_prefix):] for c in df.columns if c.startswith(vel_prefix)]
 
-    for q_str in q_suffixes:           # q_str is '4' or '12_8', etc.
+    for q_str in q_suffixes:
         depth_col = f"Depth_{q_str}"
         vel_col   = f"Vel_{q_str}"
         hab_col   = f"Hab_{q_str}"
@@ -183,33 +204,25 @@ def attribute_habitat_current_based(
         # Initialize as 0 (dry by default)
         df[hab_col] = 0
 
-        # Wetted mask
         wetted = depth_vals >= min_depth_threshold
 
-        # Assign habitat classes based on velocity
-        df.loc[wetted & (vel_vals < HABITAT_VELOCITY_THRESHOLDS["class_1"]), hab_col] = 1
+        # Class 1: v < thresholds[0]
+        df.loc[wetted & (vel_vals < thresholds[0]), hab_col] = 1
 
-        df.loc[wetted &
-               (vel_vals >= HABITAT_VELOCITY_THRESHOLDS["class_1"]) &
-               (vel_vals < HABITAT_VELOCITY_THRESHOLDS["class_2"]), hab_col] = 2
+        # Middle classes: thresholds[i-1] <= v < thresholds[i]
+        for i in range(1, len(thresholds)):
+            lower = thresholds[i - 1]
+            upper = thresholds[i]
+            df.loc[
+                wetted & (vel_vals >= lower) & (vel_vals < upper),
+                hab_col
+            ] = i + 1
 
-        df.loc[wetted &
-               (vel_vals >= HABITAT_VELOCITY_THRESHOLDS["class_2"]) &
-               (vel_vals < HABITAT_VELOCITY_THRESHOLDS["class_3"]), hab_col] = 3
+        # Last class: v >= thresholds[-1]
+        df.loc[wetted & (vel_vals >= thresholds[-1]), hab_col] = len(thresholds) + 1
 
-        df.loc[wetted &
-               (vel_vals >= HABITAT_VELOCITY_THRESHOLDS["class_3"]) &
-               (vel_vals < HABITAT_VELOCITY_THRESHOLDS["class_4"]), hab_col] = 4
-
-        df.loc[wetted &
-               (vel_vals >= HABITAT_VELOCITY_THRESHOLDS["class_4"]) &
-               (vel_vals < HABITAT_VELOCITY_THRESHOLDS["class_5"]), hab_col] = 5
-
-        df.loc[wetted &
-               (vel_vals >= HABITAT_VELOCITY_THRESHOLDS["class_5"]), hab_col] = 6
-
-    # Save to CSV
     df.to_csv(output_csv, index=False)
     print(f"✅ CSV with velocity-based habitat classification saved to {output_csv}")
 
     return df
+

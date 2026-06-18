@@ -5,7 +5,7 @@ from itertools import groupby
 
 from variables_from_config import TIME_STEP_MIN
 from variables_from_config import TIMESTEPS_PER_DAY
-from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME 
+from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME, NUMBER_OF_HABITATS 
 from variables_from_config import METRICS_TO_COMPUTE
 from variables_from_config import SUITABLE_HAB_SHIFTS
 from variables_from_config import UP_RAMP, DRIFT_THRESHOLDS_WITH_RAMP
