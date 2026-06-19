@@ -297,47 +297,6 @@ def compute_habitat_metrics(
 
     return results
 
-
-# Main function to process mesh data, compute metrics, and export results.
-def compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresholds, desiccation_thresholds, target_habitat):
-    """Compute metrics for one mesh element."""
-    results = {
-        #"Mesh_ID": row["Mesh_ID"],
-        "id": row[SHP_ID_COLNAME],
-        "x": row[SHP_X_COLNAME],
-        "y": row[SHP_Y_COLNAME],
-        "area": row[SHP_AREA_COLNAME]
-        # Here add more of the information you would like to appear on the different rows (e.g., the std_dev). Add a "," on the previous line
-    }
-
-    # building the sequences 
-    habitat_seq = [row.get(c, np.nan) for c in hab_cols]
-    velocity_seq = [row.get(c, np.nan) for c in vel_cols]
-    depth_seq = [row.get(c, np.nan) for c in dep_cols]
-
-    # Global metrics for full sequence 
-    # Durations and probabilities
-    durations, total_duration = compute_habitat_durations(habitat_seq, NUMBER_OF_HABITATS)
-    probs = compute_habitat_probabilities(durations, total_duration, NUMBER_OF_HABITATS)
-    results.update(durations)
-    results.update(probs)
-    results["mostProb"] = get_most_probable_habitat(pd.Series(probs))
- 
-
-    # For each habitat target selected by the user
-    for hab in target_habitat:
-        if hab in habitat_seq:
-            metrics = compute_habitat_metrics(habitat_seq, velocity_seq, depth_seq, drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE)
-            prefix = f"h{hab}_" #ajoute ce prefixe poure toutes les colonnes du csv où les valeurs des metrics sont stockées
-            results.update({prefix + k: v for k, v in metrics.items()})
-        else:
-            prefix = f"h{hab}_"
-            # Build empty metric structure using config
-            empty_metrics = compute_habitat_metrics([], [], [], drift_thresholds, desiccation_thresholds, METRICS_TO_COMPUTE)
-            results.update({prefix + k: np.nan for k in empty_metrics.keys()})
-
-    return results
-
 def process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds, desiccation_thresholds, target_habitat, start_at_first_occurrence):
     flow_data = pd.read_csv(flow_csv)
     mesh_data = pd.read_csv(mesh_csv)
@@ -388,7 +347,8 @@ def compute_mesh_metrics_for_row_boolean(
     results = {
         "id": row[SHP_ID_COLNAME],
         "x": row[SHP_X_COLNAME],
-        "y": row[SHP_Y_COLNAME]
+        "y": row[SHP_Y_COLNAME],
+        "area": row[SHP_AREA_COLNAME]
     }
 
     # Build full sequences
