@@ -179,17 +179,17 @@ def compute_drift_percentile_class(drift_series, percentile=90):
     perc_value = np.percentile(valid_mapped, percentile)
     return int(min(max(math.ceil(perc_value), 1), 4))
 
-def compute_habitat_durations(hab_seq):
+def compute_habitat_durations(hab_seq, n_habitats=NUMBER_OF_HABITATS):
     """Computes durations for each habitat and returns both counts and total duration."""
-    durations = {f"dur_h_{h}": hab_seq.count(h) for h in range(0, 7)}
+    durations = {f"dur_h_{h}": hab_seq.count(h) for h in range(0, n_habitats)}
     total_duration = len(hab_seq)
     return durations, total_duration
 
-def compute_habitat_probabilities(durations, total_duration):
+def compute_habitat_probabilities(durations, total_duration, n_habitats=NUMBER_OF_HABITATS):
     """Computes probabilities from durations."""
     if total_duration == 0:
-        return {f"prob_h_{h}": np.nan for h in range(0, 7)}
-    return {f"prob_h_{h}": durations[f"dur_h_{h}"] / total_duration for h in range(0, 7)}
+        return {f"prob_h_{h}": np.nan for h in range(0, n_habitats)}
+    return {f"prob_h_{h}": durations[f"dur_h_{h}"] / total_duration for h in range(0, n_habitats)}
 
 def get_most_probable_habitat(row, prob_prefix='prob_h_'):
     """Returns the habitat with the highest probability."""
@@ -317,8 +317,8 @@ def compute_mesh_metrics_for_row(row, hab_cols, vel_cols, dep_cols, drift_thresh
 
     # Global metrics for full sequence 
     # Durations and probabilities
-    durations, total_duration = compute_habitat_durations(habitat_seq)
-    probs = compute_habitat_probabilities(durations, total_duration)
+    durations, total_duration = compute_habitat_durations(habitat_seq, NUMBER_OF_HABITATS)
+    probs = compute_habitat_probabilities(durations, total_duration, NUMBER_OF_HABITATS)
     results.update(durations)
     results.update(probs)
     results["mostProb"] = get_most_probable_habitat(pd.Series(probs))
@@ -399,8 +399,8 @@ def compute_mesh_metrics_for_row_boolean(
     # ---------------------------------------
     # Global (full-sequence) metrics
     # ---------------------------------------
-    durations, total_duration = compute_habitat_durations(habitat_seq)
-    probs = compute_habitat_probabilities(durations, total_duration)
+    durations, total_duration = compute_habitat_durations(habitat_seq, NUMBER_OF_HABITATS)
+    probs = compute_habitat_probabilities(durations, total_duration, NUMBER_OF_HABITATS)
 
     results.update(durations)
     results.update(probs)
