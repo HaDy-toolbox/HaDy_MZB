@@ -13,7 +13,7 @@ from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_CO
 csv_path_to_metrics = FINAL_CSV_PATH
 shp_path_to_metrics = FINAL_SHP_PATH
 
-clustering_dir = os.path.join(BASE_OUTPUT_PATH, "Clustering")
+clustering_dir = os.path.join(OUTPUT_FOLDER_TIME, "Clustering")
 os.makedirs(clustering_dir, exist_ok=True)
 
 output_basepath = os.path.join(clustering_dir, os.path.basename(csv_path_to_metrics).replace(".csv", "_with_clusters.csv"))
