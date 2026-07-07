@@ -20,3 +20,6 @@ local.yaml
 
 # Focus zone - ignore everything 
 **/Focus_zone/**
+
+#Example output - ignire geopackage
+data/output/Example_output/Metric_files/metrics.gpkg
