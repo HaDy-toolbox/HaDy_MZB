@@ -10,7 +10,7 @@ from variables_from_config import OUTPUT_FOLDER_TIME, SHP_INPUT_FILE, DATA_DIR_H
 from metrics_calculation_focus_on_zone import process_mesh_data_focus_on_zone
 from metrics_calculation import process_mesh_data
 from support_functions import get_discharge_values, prepare_wetted_shapefile_for_relevant_discharges, join_mesh_with_CSV_data
-from flow_time_series import match_closest_discharge, get_study_discharges
+from discharge_time_series import match_closest_discharge, get_study_discharges
 from habitat_classification import prepare_csv, add_zone_flag_to_mesh, attribute_habitat_types_zone_only, attribute_habitat_current_based
 
 # ==================================================================
@@ -31,7 +31,7 @@ discharge_with_match = match_closest_discharge(discharges_values, typical_flow_t
 relevant_discharges = get_study_discharges(discharge_with_match)
 print("Discharges to study:", relevant_discharges)
 
-# crop the shapefile: to the corresponding known discharges from the flow time series; and keeping only the wetted mask (meshed wet for the max considered discharge)
+# crop the shapefile: to the corresponding known discharges from the discharge time series; and keeping only the wetted mask (meshed wet for the max considered discharge)
 output_dir_additional_shp = os.path.join(OUTPUT_FOLDER_TIME, "Cropped_shapefiles")
 os.makedirs(output_dir_additional_shp, exist_ok=True)
 output_prepared_shp = os.path.join(output_dir_additional_shp, "cropped_discharge_and_wetted_area.shp")
