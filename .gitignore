@@ -4,6 +4,7 @@ desiccation_window_analysis.py
 old_habitat_classification.py
 geopackage.py
 map_preview.py
+crop_metric_and_map_preview.py
 
 # Data files
 data/output/Toolbox_run_output/
