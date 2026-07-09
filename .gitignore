@@ -3,6 +3,7 @@ scripts/table_and_plots_by_bank.py
 desiccation_window_analysis.py
 old_habitat_classification.py
 geopackage.py
+map_preview.py
 
 # Data files
 data/output/Toolbox_run_output/
