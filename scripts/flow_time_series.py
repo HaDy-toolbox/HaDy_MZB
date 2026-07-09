@@ -2,10 +2,10 @@ import os
 import pandas as pd
 
 # ==================================================================
-# =========== Flow time-series: match closest discharge ============
+# =========== Discharge time-series: match closest discharge ============
 # ==================================================================
 def match_closest_discharge(discharge_values, typical_flow_time_series_path, output_dir):
-    """Match each timestep in a flow time series to the closest available discharge.
+    """Match each timestep in a discharge time series to the closest available discharge.
     
     Parameters:
     - discharge_values: list of float discharge values (from get_discharge_values)
@@ -35,7 +35,7 @@ def match_closest_discharge(discharge_values, typical_flow_time_series_path, out
     return output_csv
 
 # ==================================================================
-# ========== Flow time-series discharge values to study ============
+# ========== Discharge time-series discharge values to study ============
 # ==================================================================
 def get_study_discharges(discharge_csv_path):
     """

@@ -331,7 +331,7 @@ def plot_most_prob_intensity_target_hab(
 
     plt.xlabel("Most probable habitat type", fontsize=20)
     plt.ylabel("Associated Probability", fontsize=20)
-    plt.title("Probability distribution per most probable habitat type\nfor patches experiencing the target habitat conditions \nduring the flow time-series", fontsize=22)
+    plt.title("Probability distribution per most probable habitat type\nfor patches experiencing the target habitat conditions \nduring the discharge time-series", fontsize=22)
 
     plt.xticks(rotation=45, ha="right", fontsize=16)
     plt.yticks(fontsize=18)
@@ -492,7 +492,7 @@ def plot_most_prob_percentages_target_hab(
 
     plt.xlabel("Most probable habitat type", fontsize=18)
     plt.ylabel("Percentage of patches (%)", fontsize=18)
-    plt.title("Percentage of most probable habitat types across all patches \nfor patches experiencing the target habitat conditions \nduring the flow time-series", fontsize=20)
+    plt.title("Percentage of most probable habitat types across all patches \nfor patches experiencing the target habitat conditions \nduring the discharge time-series", fontsize=20)
 
     plt.xticks(ticks=x, labels=labels, rotation=30, ha='right', fontsize=14)
     plt.yticks(fontsize=14)
@@ -646,7 +646,7 @@ def plot_most_prob_horizontal_target_hab(
     ax.set_xlim(0, 100)
     ax.set_ylim(-0.5, 0.5)
     ax.set_yticks([])
-    ax.set_xlabel("Percentage of patches experiencing the target habitat conditions \nduring the flow time-series", fontsize=18)
+    ax.set_xlabel("Percentage of patches experiencing the target habitat conditions \nduring the discharge time-series", fontsize=18)
     ax.set_title("Dominant habitat type distribution", fontsize=20)
     ax.legend(
         loc='center left',
@@ -895,7 +895,7 @@ def plot_habitat_availability_per_discharge_target_hab(
     plt.yticks(fontsize=16)
 
     plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
-    plt.ylabel("Habitat availability\n[% of the patches experiencing the target habitat conditions \nduring the flow time-series]", fontsize=18, labelpad=15)
+    plt.ylabel("Habitat availability\n[% of the patches experiencing the target habitat conditions \nduring the discharge time-series]", fontsize=18, labelpad=15)
 
     plt.title("Habitat availability per discharge", fontsize=20, pad=20)
 
@@ -1154,7 +1154,7 @@ def plot_habitat_availability_per_discharge_area_target_hab(
     plt.yticks(fontsize=16)
     plt.xlabel("Discharge [m³/s]", fontsize=18, labelpad=15)
     plt.ylabel(
-        "Habitat availability\n[% of the area of patches experiencing the target habitat\n during the flow time-series]",
+        "Habitat availability\n[% of the area of patches experiencing the target habitat\n during the discharge time-series]",
         fontsize=18,
         labelpad=15
     )
@@ -1256,7 +1256,7 @@ def plot_probability_distribution_target_hab(
 
     plt.title(
         f"Distribution of habitat probabilities\n"
-        f"(patches experiencing habitat target {target_habitat} \nat least once during the flow time-series)", 
+        f"(patches experiencing habitat target {target_habitat} \nat least once during the discharge time-series)", 
         fontsize=20
     )
 

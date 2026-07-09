@@ -49,7 +49,7 @@ def get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
     return discharges
 
 # ==================================================================
-# ===== Filters the corresponding known discharges from the flow time-series 
+# ===== Filters the corresponding known discharges from the discharge time-series 
 # and then keeps only the meshes withing the wetted mask =====
 # ==================================================================
 #

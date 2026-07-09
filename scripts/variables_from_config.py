@@ -66,14 +66,14 @@ SHP_INPUT_FILE = os.path.join(AREA_FOLDER, _config["input_shp_filename"])
 OUTPUT_FOLDER_TIME = os.path.join(OUTPUT_FOLDER, "Toolbox_run_output")
 os.makedirs(OUTPUT_FOLDER_TIME, exist_ok=True)
 TIME_STEP_MIN = _config["time_step_min"]
-TYPICAL_FLOW_FILENAME = _config["input_flow_timeseries_filename"]
+TYPICAL_FLOW_FILENAME = _config["input_discharge_timeseries_filename"]
                                 
 
 # --- Time parameters to calculate daily metrics---
 TIMESTEPS_PER_DAY = int((24 * 60) / TIME_STEP_MIN)
 
 # --- Hydro data ---
-DATA_DIR_HYDRO = os.path.join(INPUT_FOLDER, "Flow_data")
+DATA_DIR_HYDRO = os.path.join(INPUT_FOLDER, "Discharge_data")
 
 # --- Zone polygons ---
 FOCUS_ON_ZONE = _config["focus_on_zone"]  # always mandatory, keep bracket access
