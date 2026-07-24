@@ -439,9 +439,8 @@ def generate_preview_maps(gdf: gpd.GeoDataFrame, save_dir: Path):
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
-
-def main():
-    input_path = Path(FULL_METRICS_SHP)
+def main(input_shp_path=None):
+    input_path = Path(input_shp_path) if input_shp_path else Path(FULL_METRICS_SHP)
     if not input_path.exists():
         sys.exit(f"ERROR: input shapefile not found: {input_path.resolve()}")
 

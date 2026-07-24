@@ -5,7 +5,7 @@ import os
 from variables_from_config import HABITAT_VELOCITY_THRESHOLDS, DRIFT_THRESHOLDS_NO_RAMP, DESICCATION_THRESHOLDS, HABITAT_TARGETS, ZONE_PONTE_SHP, ZONE_INTEREST_FIELD, CRS, DEPTH_THRESHOLD, START_AT_FIRST_OCCURENCE, FOCUS_ON_ZONE, NUMBER_OF_HABITATS
 from variables_from_config import SHP_DEPTH_PREFIX, SHP_VEL_PREFIX, SHP_X_COLNAME, SHP_Y_COLNAME, SHP_ID_COLNAME, SHP_AREA_COLNAME
 from variables_from_config import OUTPUT_FOLDER_TIME, SHP_INPUT_FILE, DATA_DIR_HYDRO, TYPICAL_FLOW_FILENAME
-
+from crop_metric_and_map_preview import main as crop_and_map_preview
 
 from metrics_calculation_focus_on_zone import process_mesh_data_focus_on_zone
 from metrics_calculation import process_mesh_data
@@ -128,3 +128,6 @@ else:
         output_shp_file=output_mesh_metrics_values,
         id_col=SHP_ID_COLNAME
     )
+
+# ---- new step: crop to essentials + generate preview maps ----
+crop_and_map_preview(output_mesh_metrics_values)
