@@ -1,3 +1,37 @@
+"""
+Metrics Calculation — Standard, no focus on a specific zone
+----------------------------------------------------
+
+Computes per-mesh-cell time-series metrics when FOCUS_ON_ZONE is False,
+i.e. habitat classes come from attribute_habitat_current_based (0 = dry,
+1..N = increasing velocity classes across the whole simulated area).
+
+Core building blocks (parallel to the zone-focused module):
+- Sequence statistics: run lengths, shift counting (daily shifts between
+  all habitats, between "suitable" habitats defined in
+  SUITABLE_HAB_SHIFTS, or into dry conditions).
+- Desiccation: longest dry spell converted into a 1-4 risk class via
+  DESICCATION_THRESHOLDS.
+- Drift risk: per-timestep velocity (optionally ramping-rate-aware)
+  classification into 1-4 classes, reduced to a percentile risk class,
+  a max risk class, and/or per-class time durations.
+- Habitat duration/probability across the full set of NUMBER_OF_HABITATS
+  classes, plus the single most probable habitat per cell.
+
+Main entry points:
+- process_mesh_data(flow_csv, mesh_csv, output_csv, drift_thresholds,
+  desiccation_thresholds, target_habitat, start_at_first_occurrence):
+  for every mesh cell, builds habitat/velocity/depth sequences across all
+  matched discharges, computes overall habitat probabilities, and for
+  each target habitat computes the metrics above (with optional
+  desiccation recomputation starting from that habitat's first
+  occurrence). Writes one row per mesh cell to output_csv.
+- compute_mesh_metrics_for_row_boolean(...): the per-row worker function.
+
+This is the default metrics module used whenever the analysis is not
+restricted to a specific sub-zone of the mesh.
+"""
+
 import numpy as np
 import pandas as pd
 import math
