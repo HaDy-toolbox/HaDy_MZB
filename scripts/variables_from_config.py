@@ -1,3 +1,32 @@
+"""
+Configuration Loader
+------------------------
+
+Loads the user's YAML configuration (local.yaml, falling back to the
+example config.yaml if no local file is found) and exposes every
+parameter as a module-level variable for the rest of the toolbox to
+import directly (e.g. `from variables_from_config import HABITAT_TARGETS`).
+
+Covers:
+- Habitat definition: target habitat(s), number of habitat classes,
+  which metrics to compute, and which habitats count as "suitable" for
+  shift calculations.
+- Spatial/CRS settings and wetted-cell depth threshold.
+- Project folder structure: resolves input/output paths (shapefiles,
+  discharge time series, final CSV/SHP outputs) relative to the project
+  root.
+- Time settings: timestep length and derived timesteps-per-day.
+- Optional zone-of-interest settings (only populated if focus_on_zone is
+  enabled in the config): zone shapefile, zone/polygon ID field names.
+- Shapefile column naming conventions (ID, x/y, area, depth/velocity
+  prefixes).
+- Desiccation, drift, and current-velocity habitat thresholds, and the
+  up-ramping flag controlling which drift threshold set is used.
+
+run_analysis(): a small helper that prints a summary of the key loaded
+parameters — useful as a sanity check that the config was read correctly.
+"""
+
 import yaml
 import re
 import os
