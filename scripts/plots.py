@@ -1,3 +1,49 @@
+"""
+Habitat Metrics — Plotting & Statistics
+-------------------------------------------
+
+Generates the full set of diagnostic and summary plots from the metrics
+CSV(s) produced upstream, comparing habitat conditions across the
+simulated zone and, in particular, for the user-selected target habitat.
+
+Support functions:
+- get_text_color: picks readable (black/white) text color for a given
+  background color, used for in-bar percentage labels.
+- build_intensity_column: for each cell, extracts the probability value
+  associated with its "most probable" habitat class.
+- compact_letter_assignment: converts a pairwise post-hoc significance
+  matrix into compact letter groupings (e.g. "a", "ab", "b") for
+  annotating boxplots.
+- filter_meshes_with_target_habitat: keeps only cells that experience the
+  target habitat at least once in the time series.
+
+Plot families (each usually has a "whole simulated zone" version and a
+"target-habitat-only" version):
+- plot_most_prob_intensity[_target_hab]: boxplots of the probability
+  associated with each cell's most-probable habitat, with Kruskal-Wallis/
+  Dunn post-hoc tests.
+- plot_most_prob_percentages[_target_hab]: bar charts of the % of cells
+  whose most-probable habitat is each class.
+- plot_most_prob_horizontal[_target_hab]: single horizontal stacked bar
+  summarizing the same percentages.
+- plot_habitat_availability_per_discharge[_target_hab] and the "_area"
+  variants: stacked bar charts showing, for each simulated discharge, the
+  % of cells (or % of area) in each habitat class.
+- plot_probability_distribution_target_hab: boxplots of the time-fraction
+  (probability) spent in each habitat class, restricted to cells that
+  ever reach the target habitat.
+- plot_histograms_target_habitat: a battery of histograms/boxplots for
+  the target habitat's metrics (probability, drift risk, daily/monthly
+  shifts, desiccation risk and dry-window counts/durations), driven by
+  which metrics were enabled in METRICS_TO_COMPUTE.
+- plot_desiccation_by_polygon (zone-focused mode only): compares
+  desiccation-related metrics across individual zone polygons (e.g.
+  gravel bars) with boxplots and threshold reference lines.
+
+main(): runs the whole battery of plots above in sequence and saves them
+as PNGs under OUTPUT_FOLDER_TIME/Plots.
+"""
+
 import pandas as pd
 import seaborn as sns
 import matplotlib
@@ -19,6 +65,7 @@ HABITAT_TARGETS = HABITAT_TARGETS[0] # the plots are only done for one habitat t
 csv_path = FINAL_CSV_PATH
 csv_path_static = STATIC_HABITAT_CSV_PATH
 
+# to be adapted by the user 
 habitat_labels_dict_FOCUS_ZONE_FALSE = {
     0: "Dry",
     1: "Stagnant",
