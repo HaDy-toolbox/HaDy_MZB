@@ -1,3 +1,44 @@
+"""
+Metrics Calculation — Zone-Focused Mode
+------------------------------------------
+
+Computes per-mesh-cell time-series metrics when FOCUS_ON_ZONE is True,
+i.e. habitat is only meaningful within a defined zone of interest
+(habitat classes -1/0/1/2 from attribute_habitat_types_zone_only).
+
+Core building blocks:
+- Sequence statistics: longest run of a value, run/shift counting (daily
+  shift rates into a target habitat, into dry conditions, or overall),
+  duration statistics for runs of a given habitat value (count, max,
+  median, Q1, Q3, expressed in hours via TIME_STEP_MIN).
+- Desiccation: longest dry spell (max_dry_duration) converted into a
+  1-4 risk class (get_desiccation_risk / get_desiccation_risk_from_hours)
+  using DESICCATION_THRESHOLDS, plus the same risk classification applied
+  to the median/Q1/Q3 dry-spell durations.
+- Drift risk: per-timestep classification of velocity (and optionally
+  ramping rate) into 1-4 risk classes, then reduced to a 90th-percentile
+  risk class, a max risk class, and/or time spent in each class.
+- Habitat duration/probability: how many timesteps (and what fraction of
+  the time series) each cell spends in each habitat class (-1 to 2), and
+  which habitat is most probable overall.
+
+Main entry points:
+- process_mesh_data_focus_on_zone(flow_csv, mesh_csv, output_csv,
+  drift_thresholds, desiccation_thresholds, target_habitat,
+  start_at_first_occurrence): for every mesh cell, builds its habitat/
+  velocity/depth sequences across all discharges in the matched flow
+  time series, computes global habitat probabilities plus, for each
+  target habitat, the full metric set above (optionally recomputing
+  desiccation stats only from the first occurrence of the target habitat
+  onward). Results are written to output_csv (one row per mesh cell).
+- compute_mesh_metrics_for_row_boolean(...): the per-row worker function
+  used by process_mesh_data_focus_on_zone.
+
+This module is the zone-restricted counterpart of metrics_calculation.py,
+adding zone/polygon identifiers (focus_zone, id_focus) to each row's
+output.
+"""
+
 import numpy as np
 import pandas as pd
 import math
@@ -475,27 +516,6 @@ def compute_mesh_metrics_for_row_boolean(
             # Save timestep index
             results[prefix + "first"] = first_idx #"first_occurrence_time"
 
-            """
-            # 2️⃣ Slice if requested
-            if start_at_first_occurrence:
-                habitat_seq_used = habitat_seq[first_idx:]
-                velocity_seq_used = velocity_seq[first_idx:]
-                depth_seq_used = depth_seq[first_idx:]
-            else:
-                habitat_seq_used = habitat_seq
-                velocity_seq_used = velocity_seq
-                depth_seq_used = depth_seq
-
-            # 3️⃣ Compute metrics
-            metrics = compute_habitat_metrics(
-                habitat_seq_used,
-                velocity_seq_used,
-                depth_seq_used,
-                drift_thresholds,
-                desiccation_thresholds,
-                METRICS_TO_COMPUTE
-            )
-            """
             # --------------------------------------------------
             # 1️⃣ Compute ALL metrics on full sequence
             # --------------------------------------------------
