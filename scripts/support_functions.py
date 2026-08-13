@@ -1,3 +1,34 @@
+"""
+Support Functions — Discharge Columns & Mesh/CSV Conversion
+----------------------------------------------------------------
+
+Shared utilities for translating between discharge values and their
+column-name representations, cropping the input mesh to the relevant
+discharges, and converting between shapefile and CSV formats.
+
+Functions:
+- discharge_to_col_str / col_str_to_discharge: convert a discharge float
+  to/from its column-name string form (e.g. 12.8 <-> "12_8").
+- get_discharge_values(shp_file_data, depth_prefix, velocity_prefix):
+  scans the input GeoDataFrame's depth columns to recover the sorted list
+  of discharge values actually simulated.
+- prepare_wetted_shapefile_for_relevant_discharges(...): subsets the mesh
+  to only the ID/coords/area/geometry columns plus the depth/velocity
+  columns for the discharges under study, fills missing values with 0,
+  restricts to cells wetted (depth > threshold) at the maximum discharge,
+  and saves the cropped shapefile.
+- export_shapefile_to_csv(shp_to_convert, output_csv_path): drops geometry
+  and writes the remaining attribute table to CSV.
+- join_mesh_with_CSV_data(mesh_file, csv_file, output_shp_file, id_col):
+  reloads a mesh geometry shapefile, merges it with a results CSV on a
+  shared ID column (dropping redundant x/y/area columns from the CSV
+  side), and saves the merged shapefile.
+
+These helpers are reused across the habitat classification, metrics
+calculation, and clustering steps whenever mesh geometry needs to be
+paired back up with tabular results.
+"""
+
 import geopandas as gpd
 import pandas as pd
 
