@@ -1,3 +1,46 @@
+"""
+Habitat Classification
+------------------------
+
+Converts prepared mesh geometry/hydraulic data into a habitat-typed CSV,
+using one of two classification strategies depending on FOCUS_ON_ZONE.
+
+Functions:
+1. prepare_csv(prepared_shp, output_csv, depth_prefix, vel_prefix)
+   - Drops geometry from the prepared GeoDataFrame and renames raw depth/
+     velocity columns (e.g. 'ho3_1' -> 'Depth_3_1', 'vit3_1' -> 'Vel_3_1').
+   - Saves the result as a plain CSV (no habitat attribution yet).
+
+2. add_zone_flag_to_mesh(mesh_csv, polygon_shp, zone_col, crs, predicate) --> when there is a focus on a specific zone (FOCUS_ON_ZONE = True)
+   - Turns the mesh CSV into points (using x/y columns) and spatially joins
+     it against a polygon shapefile (e.g. a gravel-bar zone of interest).
+   - Adds a binary column (zone_col): 1 if the mesh cell falls inside the
+     polygon(s), 0 otherwise. Returns a DataFrame (not saved to disk, since
+     it's only an intermediate step before habitat attribution).
+
+3. attribute_habitat_types_zone_only(mesh_df, output_csv, zone_col,
+   min_depth_threshold, max_depth_threshold, velocity_range) --> when there is a focus on a specific zone (FOCUS_ON_ZONE = True)
+   - Used when FOCUS_ON_ZONE is True. For every discharge, assigns each
+     cell a habitat class, but ONLY for cells inside the zone:
+       -1 = outside the zone
+        0 = inside zone but dry (depth < min_depth_threshold)
+        1 = inside zone, wet, but not meeting depth/velocity criteria
+        2 = inside zone, wet, and within the suitable depth/velocity window
+     Saves the result to output_csv.
+
+4. attribute_habitat_current_based(mesh_csv, output_csv, min_depth_threshold,
+   HABITAT_VELOCITY_THRESHOLDS, number_of_habitats) --> when there is no focus on a specific zone (FOCUS_ON_ZONE = False)
+   - Used when FOCUS_ON_ZONE is False. For every discharge, assigns each
+     cell a habitat class purely from current velocity, based on a sorted
+     set of user-defined thresholds (class_1, class_2, ...):
+        0 = dry, 1..N = increasing velocity classes.
+   - Infers/validates the total number of habitat classes from the
+     threshold dictionary, then saves the classified CSV.
+
+Both attribution functions add one 'Hab_<discharge>' column per simulated
+discharge to the dataframe.
+"""
+
 import geopandas as gpd
 import pandas as pd
 import re 
@@ -146,7 +189,6 @@ def attribute_habitat_types_zone_only(
     print(f"✅ Zone-restricted habitat attribution completed → {output_csv}")
 
     return df
-
 
 # FUNCTION TO ADAPT TO CHANGE THE HABITAT CLASSIFICATION METHOD WHEN THE BOOLEAN FOCUS_ON_ZONE IS FALSE (CURRENT-BASED CLASSIFICATION)
 def attribute_habitat_current_based(

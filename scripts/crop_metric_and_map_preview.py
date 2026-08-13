@@ -1,4 +1,7 @@
 """
+Creation of metrics_essentials.shp and preview maps
+-------------------------
+
 Step 1: Crops metrics.shp down to metrics_essentials.shp, keeping only:
   - id, x, y, area
   - all habitat probability columns (pattern: prob_h_{N})
@@ -14,7 +17,7 @@ drift, and desiccation. Only meshes where the target habitat occurs
 (probability > 0) are coloured; everything else is shown in grey
 ("No data / not applicable").
 
-Both outputs are written next to FULL_METRICS_SHP:
+Both outputs are written next to FULL_METRICS_SHP in data > output > Metric_files:
   - metrics_essentials.shp                     (the cropped shapefile)
   - Preview_maps/map_probability_h{N}.png       (and shifts/drift/desiccation)
   - Preview_maps/map_shifts_h{N}.png

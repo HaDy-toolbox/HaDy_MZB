@@ -1,3 +1,38 @@
+"""
+Main Pipeline
+--------------
+
+Orchestrates the full habitat/metrics workflow end-to-end, from the raw
+input shapefile to final metrics shapefile and preview maps.
+
+Steps:
+1. Load the input shapefile (all mesh cells, all simulated discharges).
+2. Extract the list of simulated discharge values from the depth/velocity
+   column names (get_discharge_values).
+3. Match each timestep of the "typical flow" discharge time series to its
+   closest simulated discharge (match_closest_discharge), and determine the
+   distinct set of discharges actually needed for the study
+   (get_study_discharges).
+4. Crop the mesh shapefile to only the relevant discharge columns and to
+   cells wetted at the maximum discharge (prepare_wetted_shapefile_for_
+   relevant_discharges), then export it to CSV (prepare_csv).
+5. Branch depending on FOCUS_ON_ZONE:
+   - If True: flag cells inside the zone of interest
+     (add_zone_flag_to_mesh), classify habitat only within that zone
+     (attribute_habitat_types_zone_only), then compute metrics with the
+     zone-specific logic (process_mesh_data_focus_on_zone).
+   - If False: classify habitat by current-velocity thresholds across the
+     whole mesh (attribute_habitat_current_based), then compute metrics
+     with the standard logic (process_mesh_data).
+6. Join the resulting metrics CSV back onto the mesh geometry to produce a
+   final metrics shapefile (join_mesh_with_CSV_data).
+7. Crop the shapefile to essential columns and generate preview maps
+   (crop_and_map_preview).
+
+This script is the single entry point tying together discharge matching,
+habitat classification, metrics calculation, and mapping.
+"""
+
 import geopandas as gpd
 import os
 
@@ -25,7 +60,6 @@ typical_flow_time_series_path = os.path.join(DATA_DIR_HYDRO, TYPICAL_FLOW_FILENA
 output_dir_discharge_with_match = os.path.join(OUTPUT_FOLDER_TIME, "Discharge_with_match")
 os.makedirs(output_dir_discharge_with_match, exist_ok=True)
 discharge_with_match = match_closest_discharge(discharges_values, typical_flow_time_series_path, output_dir_discharge_with_match)
-
 
 # select relevant discharges 
 relevant_discharges = get_study_discharges(discharge_with_match)
@@ -111,7 +145,6 @@ else:
         min_depth_threshold=DEPTH_THRESHOLD,
         HABITAT_VELOCITY_THRESHOLDS=HABITAT_VELOCITY_THRESHOLDS,
         number_of_habitats = NUMBER_OF_HABITATS)
-
     
     # Metrics calculation
     output_metrics = os.path.join(OUTPUT_FOLDER_TIME, "Metric_files")

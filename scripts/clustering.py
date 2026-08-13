@@ -1,3 +1,42 @@
+"""
+Metrics Clustering Analysis
+-------------------------
+
+This script performs K-means clustering on habitat suitability metrics for meshes 
+experiencing the target habitat during the habitat time-series. 
+See more in the user manual.
+
+Workflow:
+1. Loads a CSV of pre-computed metrics (probability of habitat occurrence,
+   and optionally drift percentile, shift target suitability, and
+   desiccation risk, depending on flags in METRICS_TO_COMPUTE).
+2. Filters to rows where the target habitat's occurrence probability is > 0,
+   then standardizes the selected metrics (StandardScaler).
+3. Determines the optimal number of clusters (k) by computing silhouette
+   scores for k = 2 up to a maximum of 9 (bounded by the number of unique
+   data points), and saves a silhouette score plot.
+4. Runs a final KMeans fit using the optimal k and assigns cluster labels
+   back to the original dataframe.
+5. Projects the standardized metrics onto 2 principal components (PCA) for
+   visualization, saves the PCA loadings to CSV, and generates a scatter
+   plot of the clusters in PCA space.
+6. Saves the updated dataframe (with cluster assignments and PC1/PC2
+   coordinates) to a new CSV file.
+7. Joins the clustering results back onto the original mesh geometry
+   (shapefile) using a shared ID column, producing a new shapefile with
+   the cluster/metric columns added.
+
+Outputs (written under OUTPUT_FOLDER_TIME/Clustering/):
+- <habitat>_silhouette.png       : silhouette score vs. number of clusters
+- <habitat>_PCA_loadings.csv     : PCA component loadings per metric
+- <habitat>_PCA_clusters.png     : PCA scatter plot colored by cluster
+- <csv_name>_with_clusters.csv   : original data + cluster labels + PCA coords
+- <shp_name>_with_clusters.shp   : mesh shapefile joined with the above results
+
+Note: OMP_NUM_THREADS is set to "2" before importing sklearn/matplotlib to
+work around a known MKL memory leak with KMeans on Windows.
+"""
+
 import pandas as pd
 import os
 os.environ["OMP_NUM_THREADS"] = "2"  # fix MKL memory leak on Windows
@@ -9,7 +48,7 @@ from sklearn.decomposition import PCA
 import numpy as np
 import geopandas as gpd
 
-from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH, OUTPUT_FOLDER_TIME, BASE_OUTPUT_PATH
+from variables_from_config import METRICS_TO_COMPUTE, HABITAT_TARGETS, SHP_ID_COLNAME, FINAL_CSV_PATH, FINAL_SHP_PATH, OUTPUT_FOLDER_TIME
 csv_path_to_metrics = FINAL_CSV_PATH
 shp_path_to_metrics = FINAL_SHP_PATH
 
@@ -22,7 +61,7 @@ df = pd.read_csv(csv_path_to_metrics)
 target_habitat = HABITAT_TARGETS[0]
 short_basepath = os.path.join(clustering_dir, f"h{target_habitat}")
 
-df[f"cluster_{target_habitat}"] = -1 # Initialize cluster column
+df[f"cluster_{target_habitat}"] = -1 # Initialize cluster column to -1 (unclustered)
 
 def perform_clustering_target_habitat(
         df,
@@ -112,7 +151,7 @@ def perform_clustering_target_habitat(
     df.loc[indices, cluster_col] = labels
 
     # -----------------------------
-    # Cluster statistics
+    # Cluster statistics: uncomment the following block if you want to save cluster statistics to CSV
     # -----------------------------
     """ 
     cluster_stats = pd.DataFrame(X, columns=metrics)
