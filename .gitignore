@@ -1,19 +1,10 @@
 scripts/__pycache__ 
-scripts/table_and_plots_by_bank.py
-desiccation_window_analysis.py
-old_habitat_classification.py
-geopackage.py
-map_preview.py
-desiccation_plots.py
-desiccation_plots_modified.py
-desiccation_window_analysis_modified.py
 
 # Data files
 data/output/Toolbox_run_output/
 
 # Data files
 local.yaml
-local_INRAE_full_zone_2022.yaml
 
 # Flow_data - ignore everything except Week_timestep_10_min.csv
 **/Flow_data/**
@@ -26,9 +17,5 @@ local_INRAE_full_zone_2022.yaml
 # Focus zone - ignore everything 
 **/Focus_zone/**
 
-#Example output - ignire geopackage
-data/output/Example_output/Metric_files/metrics.gpkg
 
-data/output/Toolbox_run_output_maps_from_config
-data/output/Toolbox_run_output_2019
-data/output/Toolbox_run_output_2022
+
