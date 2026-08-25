@@ -4,3 +4,5 @@ More information about the project here: https://www.eawag.ch/en/department/surf
 Access and download the related paper here: https://link.springer.com/article/10.1007/s00267-026-02574-2
 
 Lecrivain, A., De Cesare, G., Weber, C. et al. Macroinvertebrate Habitat Dynamics under Frequent Hydropower-Induced Discharge Fluctuations: Patch-Scale Metrics to Quantify Effects of Hydropeaking and Morphological Complexity. Environmental Management 76, 279 (2026). https://doi.org/10.1007/s00267-026-02574-2
+
+How to cite this tool: Lecrivain, A., Weber, C., & Bätz, N. (2026). HaDy_MZB: Open-source Python toolbox for patch-scale habitat dynamics, hydropeaking impact assessment, habitat persistence, drift risk and desiccation risk in flow-altered rivers (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.22093139
