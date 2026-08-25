@@ -1,0 +1,19 @@
+cff-version: 1.0.0
+title: "HaDy_MZB: Open-source Python toolbox for patch-scale habitat dynamics, hydropeaking impact assessment, habitat persistence, drift risk and desiccation risk in flow-altered rivers"
+message: "If you use HaDy_MZB in your research or your work, please cite this software."
+type: software
+
+authors:
+  - family-names: "Lecrivain"
+    given-names: "Aude"
+  - family-names: "Weber"
+    given-names: "Christine"
+  - family-names: "Bätz"
+    given-names: "Nico"
+
+repository-code: "https://github.com/HaDy-toolbox/HaDy_MZB"
+
+license: "MIT"
+version: "1.0.0"
+date-released: "2026-08-25"
+doi: "X"
